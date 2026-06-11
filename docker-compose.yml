@@ -1,0 +1,39 @@
+services:
+  app:
+    build:
+      context: .
+      target: dev
+    container_name: bolao_app
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.docker
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    container_name: bolao_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bolao
+      POSTGRES_USER: bolao
+      POSTGRES_PASSWORD: bolao123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bolao -d bolao"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

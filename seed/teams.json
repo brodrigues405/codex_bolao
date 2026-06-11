@@ -1,0 +1,61 @@
+[
+  { "id": "t1", "code": "MEX", "name": "Mexico", "group": "A", "isSample": false },
+  { "id": "t2", "code": "RSA", "name": "South Africa", "group": "A", "isSample": false },
+  { "id": "t3", "code": "KOR", "name": "South Korea", "group": "A", "isSample": false },
+  { "id": "t4", "code": "CZE", "name": "Czechia", "group": "A", "isSample": false },
+
+  { "id": "t5", "code": "CAN", "name": "Canada", "group": "B", "isSample": false },
+  { "id": "t6", "code": "BIH", "name": "Bosnia and Herzegovina", "group": "B", "isSample": false },
+  { "id": "t7", "code": "QAT", "name": "Qatar", "group": "B", "isSample": false },
+  { "id": "t8", "code": "SUI", "name": "Switzerland", "group": "B", "isSample": false },
+
+  { "id": "t9", "code": "BRA", "name": "Brazil", "group": "C", "isSample": false },
+  { "id": "t10", "code": "MAR", "name": "Morocco", "group": "C", "isSample": false },
+  { "id": "t11", "code": "HAI", "name": "Haiti", "group": "C", "isSample": false },
+  { "id": "t12", "code": "SCO", "name": "Scotland", "group": "C", "isSample": false },
+
+  { "id": "t13", "code": "USA", "name": "United States", "group": "D", "isSample": false },
+  { "id": "t14", "code": "PAR", "name": "Paraguay", "group": "D", "isSample": false },
+  { "id": "t15", "code": "AUS", "name": "Australia", "group": "D", "isSample": false },
+  { "id": "t16", "code": "TUR", "name": "Turkey", "group": "D", "isSample": false },
+
+  { "id": "t17", "code": "GER", "name": "Germany", "group": "E", "isSample": false },
+  { "id": "t18", "code": "CUW", "name": "Curacao", "group": "E", "isSample": false },
+  { "id": "t19", "code": "CIV", "name": "Ivory Coast", "group": "E", "isSample": false },
+  { "id": "t20", "code": "ECU", "name": "Ecuador", "group": "E", "isSample": false },
+
+  { "id": "t21", "code": "NED", "name": "Netherlands", "group": "F", "isSample": false },
+  { "id": "t22", "code": "JPN", "name": "Japan", "group": "F", "isSample": false },
+  { "id": "t23", "code": "SWE", "name": "Sweden", "group": "F", "isSample": false },
+  { "id": "t24", "code": "TUN", "name": "Tunisia", "group": "F", "isSample": false },
+
+  { "id": "t25", "code": "BEL", "name": "Belgium", "group": "G", "isSample": false },
+  { "id": "t26", "code": "EGY", "name": "Egypt", "group": "G", "isSample": false },
+  { "id": "t27", "code": "IRN", "name": "Iran", "group": "G", "isSample": false },
+  { "id": "t28", "code": "NZL", "name": "New Zealand", "group": "G", "isSample": false },
+
+  { "id": "t29", "code": "ESP", "name": "Spain", "group": "H", "isSample": false },
+  { "id": "t30", "code": "CPV", "name": "Cape Verde", "group": "H", "isSample": false },
+  { "id": "t31", "code": "KSA", "name": "Saudi Arabia", "group": "H", "isSample": false },
+  { "id": "t32", "code": "URU", "name": "Uruguay", "group": "H", "isSample": false },
+
+  { "id": "t33", "code": "FRA", "name": "France", "group": "I", "isSample": false },
+  { "id": "t34", "code": "SEN", "name": "Senegal", "group": "I", "isSample": false },
+  { "id": "t35", "code": "IRQ", "name": "Iraq", "group": "I", "isSample": false },
+  { "id": "t36", "code": "NOR", "name": "Norway", "group": "I", "isSample": false },
+
+  { "id": "t37", "code": "ARG", "name": "Argentina", "group": "J", "isSample": false },
+  { "id": "t38", "code": "ALG", "name": "Algeria", "group": "J", "isSample": false },
+  { "id": "t39", "code": "AUT", "name": "Austria", "group": "J", "isSample": false },
+  { "id": "t40", "code": "JOR", "name": "Jordan", "group": "J", "isSample": false },
+
+  { "id": "t41", "code": "POR", "name": "Portugal", "group": "K", "isSample": false },
+  { "id": "t42", "code": "COD", "name": "DR Congo", "group": "K", "isSample": false },
+  { "id": "t43", "code": "UZB", "name": "Uzbekistan", "group": "K", "isSample": false },
+  { "id": "t44", "code": "COL", "name": "Colombia", "group": "K", "isSample": false },
+
+  { "id": "t45", "code": "ENG", "name": "England", "group": "L", "isSample": false },
+  { "id": "t46", "code": "CRO", "name": "Croatia", "group": "L", "isSample": false },
+  { "id": "t47", "code": "GHA", "name": "Ghana", "group": "L", "isSample": false },
+  { "id": "t48", "code": "PAN", "name": "Panama", "group": "L", "isSample": false }
+]
