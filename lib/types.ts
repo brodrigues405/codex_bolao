@@ -11,12 +11,19 @@ export interface User {
 
 export interface Match {
   id: string;
+  fifaMatchNumber?: number;
   stage: "group" | "round32" | "round16" | "quarterfinal" | "semifinal" | "third_place" | "final";
   stageLabel: string;
   groupName?: string;
   kickoffAtUtc: string;
   homeTeam: string;
+  homeTeamCode?: string;
+  homeFlagUrl?: string;
   awayTeam: string;
+  awayTeamCode?: string;
+  awayFlagUrl?: string;
+  stadium?: string;
+  city?: string;
   status: MatchStatus;
   officialScore?: {
     homeScore: number;

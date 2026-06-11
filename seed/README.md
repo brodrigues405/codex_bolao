@@ -77,9 +77,9 @@ docker compose exec app npm run import:official
 
 ## Observacao
 
-Hoje a fase de grupos ja esta completa em `matches.json`.
+O arquivo `matches.json` contem os `104 jogos` da Copa:
 
-Ainda falta:
+- `72 jogos` de fase de grupos
+- `32 jogos` de mata-mata com vagas a definir em `homeSlotLabel` e `awaySlotLabel`
 
-- completar os `32 jogos` do mata-mata
-- revisar os horarios UTC dos registros marcados com `needsKickoffReview: true`
+Ainda falta revisar os horarios UTC dos registros marcados com `needsKickoffReview: true`.

@@ -23,7 +23,7 @@ function assert(condition, message) {
 
 async function readJson(filePath) {
   const raw = await readFile(filePath, "utf-8");
-  return JSON.parse(raw);
+  return JSON.parse(raw.replace(/^\uFEFF/, ""));
 }
 
 function normalizeStatus(status) {

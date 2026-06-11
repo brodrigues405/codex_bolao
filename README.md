@@ -21,7 +21,8 @@ MVP de bolao corporativo com foco em simplicidade operacional, custo baixo e dep
 - schema inicial do Supabase em [supabase/schema.sql](/c:/Users/Enterprise/Desktop/codex_bolao/supabase/schema.sql)
 - ambiente Docker local com app + Postgres em [docker-compose.yml](/c:/Users/Enterprise/Desktop/codex_bolao/docker-compose.yml)
 - schema local do banco em [docker/postgres/init/001_schema.sql](/c:/Users/Enterprise/Desktop/codex_bolao/docker/postgres/init/001_schema.sql)
-- seed local com usuarios, selecoes, jogos e palpites em [docker/postgres/init/002_seed.sql](/c:/Users/Enterprise/Desktop/codex_bolao/docker/postgres/init/002_seed.sql)
+- seed local com usuarios de desenvolvimento em [docker/postgres/init/002_seed.sql](/c:/Users/Enterprise/Desktop/codex_bolao/docker/postgres/init/002_seed.sql)
+- carga oficial de grupos, selecoes e jogos em [docker/postgres/init/003_official_seed.sql](/c:/Users/Enterprise/Desktop/codex_bolao/docker/postgres/init/003_official_seed.sql)
 - fonte unica de verdade da Copa em [seed/groups.json](/c:/Users/Enterprise/Desktop/codex_bolao/seed/groups.json), [seed/teams.json](/c:/Users/Enterprise/Desktop/codex_bolao/seed/teams.json) e [seed/matches.json](/c:/Users/Enterprise/Desktop/codex_bolao/seed/matches.json)
 
 ## Estrutura recomendada
@@ -37,7 +38,7 @@ MVP de bolao corporativo com foco em simplicidade operacional, custo baixo e dep
 2. Rode `docker compose up --build`
 3. Abra `http://localhost:3000`
 4. O banco Postgres ficara disponivel em `localhost:5432`
-5. Entre com `admin/admin123` ou `lucas.alves/bolao123`
+5. Entre com `admin/admin123`
 
 Se voce alterar os scripts em `docker/postgres/init`, recrie o volume do banco para reaplicar o seed:
 
@@ -84,6 +85,8 @@ Fluxo recomendado para o admin:
 4. revisar horarios e status no painel admin
 5. durante a Copa, atualizar placares oficiais manualmente
 
+O painel admin tambem tem a acao `Sincronizar tabela oficial`, que reaplica os arquivos versionados e remove jogos antigos que nao pertencam a tabela da Copa.
+
 ## Como importar a tabela da Copa
 
 1. Baixe ou confira a tabela oficial na pagina da FIFA:
@@ -100,7 +103,6 @@ Detalhes do formato dos arquivos estao em [seed/README.md](/c:/Users/Enterprise/
 ## O que falta para fechar o produto
 
 - salvar e editar palpites direto no banco pela interface
-- completar `matches.json` com os `32 jogos` do mata-mata
 - adicionar cadastro real de participantes pelo admin
 - endurecer a seguranca da sessao local
 - preparar a troca de autenticacao local para Supabase no momento do deploy

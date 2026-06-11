@@ -29,51 +29,59 @@ export function PredictionForm({
   const hasPrediction = homeScore !== null && awayScore !== null;
 
   return (
-    <form action={action} className="grid-3">
+    <form action={action} className="prediction-form">
       <input name="matchId" type="hidden" value={matchId} />
 
-      <label>
-        <div className="muted">{homeTeam}</div>
-        <input
-          className="input"
-          defaultValue={homeScore ?? ""}
-          disabled={!canEdit || isPending}
-          inputMode="numeric"
-          min="0"
-          name="homeScore"
-          type="number"
-        />
-      </label>
+      <div className="prediction-score-inputs">
+        <label className="score-field">
+          <span>{homeTeam}</span>
+          <input
+            className="input score-input"
+            defaultValue={homeScore ?? ""}
+            disabled={!canEdit || isPending}
+            inputMode="numeric"
+            min="0"
+            name="homeScore"
+            placeholder="0"
+            type="number"
+          />
+        </label>
 
-      <label>
-        <div className="muted">{awayTeam}</div>
-        <input
-          className="input"
-          defaultValue={awayScore ?? ""}
-          disabled={!canEdit || isPending}
-          inputMode="numeric"
-          min="0"
-          name="awayScore"
-          type="number"
-        />
-      </label>
+        <div className="score-versus">x</div>
 
-      <div className="card">
-        <div className="metric">
+        <label className="score-field">
+          <span>{awayTeam}</span>
+          <input
+            className="input score-input"
+            defaultValue={awayScore ?? ""}
+            disabled={!canEdit || isPending}
+            inputMode="numeric"
+            min="0"
+            name="awayScore"
+            placeholder="0"
+            type="number"
+          />
+        </label>
+      </div>
+
+      <div className="prediction-form-footer">
+        <div className="prediction-state">
           <small>Status do palpite</small>
           <strong>{hasPrediction ? "Salvo" : "Pendente"}</strong>
           <span className="muted">
-            {canEdit ? "Edicao liberada ate o horario de inicio." : "A partida ja foi bloqueada ou finalizada."}
+            {canEdit ? "Edicao liberada ate o horario de inicio." : "Partida bloqueada ou finalizada."}
           </span>
-          {canEdit ? (
-            <button className="button button-primary" disabled={isPending} type="submit">
-              {isPending ? "Salvando..." : hasPrediction ? "Atualizar palpite" : "Salvar palpite"}
-            </button>
-          ) : null}
-          {state.error ? <span className="danger-text">{state.error}</span> : null}
-          {state.success ? <span className="success-text">{state.success}</span> : null}
         </div>
+
+        {canEdit ? (
+          <button className="button button-primary" disabled={isPending} type="submit">
+            {isPending ? "Salvando..." : hasPrediction ? "Atualizar" : "Salvar"}
+          </button>
+        ) : null}
       </div>
+
+      {state.error ? <span className="danger-text">{state.error}</span> : null}
+      {state.success ? <span className="success-text">{state.success}</span> : null}
     </form>
   );
 }

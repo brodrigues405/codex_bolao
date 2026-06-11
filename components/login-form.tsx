@@ -24,7 +24,7 @@ export function LoginForm() {
         {isPending ? "Entrando..." : "Entrar"}
       </button>
       {state.error ? <div className="banner">{state.error}</div> : null}
-      <div className="banner">Credenciais locais: `admin/admin123` ou `lucas.alves/bolao123`.</div>
+      <div className="banner">Credencial local de administracao: `admin/admin123`.</div>
     </form>
   );
 }

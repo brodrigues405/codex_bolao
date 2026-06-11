@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { loginWithPassword, logout, requireSessionUser } from "@/lib/auth";
+import { loginWithPassword, logout, requireAdminUser, requireSessionUser } from "@/lib/auth";
 import { query } from "@/lib/db";
+import { syncOfficialSeeds } from "@/lib/official-seeds";
 
 export async function loginAction(
   _previousState: { error: string },
@@ -28,6 +29,17 @@ export async function loginAction(
 export async function logoutAction() {
   await logout();
   redirect("/login");
+}
+
+export async function syncOfficialSeedsAction() {
+  await requireAdminUser();
+  await syncOfficialSeeds();
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
+  revalidatePath("/palpites");
+  revalidatePath("/ranking");
 }
 
 export async function savePredictionAction(

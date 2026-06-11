@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, ChartColumn, ShieldCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck, ChartColumn } from "lucide-react";
 import { getSessionUser } from "@/lib/auth";
 import { getAdminSummary, getLeaderboard, getUpcomingMatches } from "@/lib/data";
 
@@ -13,16 +13,12 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="hero">
+      <section className="stack">
         <div className="panel">
-          <span className="eyebrow">
-            <ShieldCheck size={16} />
-            MVP pronto para empresa
-          </span>
-          <h1>Um bolao simples, bonito e facil de operar.</h1>
+          <span className="eyebrow">Inicio</span>
+          <h1 className="section-title">Bolao Copa 2026</h1>
           <p className="lead">
-            Esta base ja nasce preparada para autenticar participantes, importar a tabela da Copa,
-            travar palpites por horario e consolidar ranking com controle minimo de auditoria.
+            Acompanhe os numeros principais do bolao, os proximos jogos abertos e o ranking resumido.
           </p>
           <div className="button-row">
             <Link className="button button-primary" href={user ? "/dashboard" : "/login"}>
@@ -41,58 +37,27 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="stack">
+        <div className="grid-3">
           <div className="card">
             <div className="metric">
               <small>Participantes</small>
               <strong>{summary.participants}</strong>
-              <span className="muted">Controle individual com login e senha temporaria.</span>
+              <span className="muted">Usuarios ativos no bolao.</span>
             </div>
           </div>
           <div className="card">
             <div className="metric">
               <small>Jogos no ambiente</small>
               <strong>{summary.totalMatches}</strong>
-              <span className="muted">Estrutura pronta para importar a tabela completa.</span>
+              <span className="muted">Tabela completa da Copa.</span>
             </div>
           </div>
           <div className="card">
             <div className="metric">
               <small>Palpites enviados</small>
               <strong>{summary.predictions}</strong>
-              <span className="muted">Pontuacao automatica com regras 5/2/0.</span>
+              <span className="muted">Total registrado pelos participantes.</span>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="grid-4">
-        <div className="card">
-          <div className="metric">
-            <small>Stack</small>
-            <strong>Next + Docker</strong>
-            <span className="muted">Desenvolvimento local previsivel e portatil.</span>
-          </div>
-        </div>
-        <div className="card">
-          <div className="metric">
-            <small>Operacao</small>
-            <strong>Manual e segura</strong>
-            <span className="muted">Admin importa e atualiza placares oficiais.</span>
-          </div>
-        </div>
-        <div className="card">
-          <div className="metric">
-            <small>Ranking</small>
-            <strong>Transparente</strong>
-            <span className="muted">Acertos exatos, resultado e desempates visiveis.</span>
-          </div>
-        </div>
-        <div className="card">
-          <div className="metric">
-            <small>Custos</small>
-            <strong>Cloud-ready</strong>
-            <span className="muted">Desenvolve localmente e sobe depois quando fizer sentido.</span>
           </div>
         </div>
       </section>
@@ -125,6 +90,7 @@ export default async function HomePage() {
                 <span>{entry.resultHits}</span>
               </div>
             ))}
+            {leaderboard.length === 0 ? <div className="banner">Nenhum participante cadastrado ainda.</div> : null}
           </div>
         </div>
 

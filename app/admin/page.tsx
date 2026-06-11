@@ -1,3 +1,4 @@
+import { syncOfficialSeedsAction } from "@/app/actions";
 import { requireAdminUser } from "@/lib/auth";
 import { getAdminSummary, getImportChecklist, getManagedUsers } from "@/lib/data";
 
@@ -29,7 +30,7 @@ export default async function AdminPage() {
           <div className="metric">
             <small>Jogos importados</small>
             <strong>{summary.totalMatches}</strong>
-            <span className="muted">Estrutura pronta para crescer ate os 104 jogos oficiais.</span>
+            <span className="muted">Tabela completa: 72 jogos de grupos e 32 do mata-mata.</span>
           </div>
         </div>
         <div className="card">
@@ -55,6 +56,11 @@ export default async function AdminPage() {
               <h2 className="section-title">Checklist de importacao</h2>
               <p className="muted">Fluxo recomendado para a carga inicial da Copa.</p>
             </div>
+            <form action={syncOfficialSeedsAction}>
+              <button className="button button-primary" type="submit">
+                Sincronizar tabela oficial
+              </button>
+            </form>
           </div>
           <div className="admin-list">
             {checklist.map((item) => (
