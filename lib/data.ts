@@ -30,6 +30,7 @@ interface DbUserRow extends Record<string, unknown> {
   username: string;
   role: Role;
   is_active: boolean;
+  paid: boolean;
   league_eligible: boolean;
   league_opt_in: boolean;
 }
@@ -74,6 +75,11 @@ async function ensureUserLeagueSchema() {
 
       alter table app_users
       add column if not exists league_opt_in boolean not null default false
+
+      ;
+
+      alter table app_users
+      add column if not exists paid boolean not null default false
     `).then(() => undefined);
   }
 
@@ -113,6 +119,7 @@ function normalizeUser(row: DbUserRow): User {
     username: row.username,
     role: row.role,
     isActive: row.is_active,
+    paid: row.paid,
     leagueEligible: row.league_eligible,
     leagueOptIn: row.league_opt_in
   };
@@ -147,7 +154,7 @@ async function getUsers() {
   await ensureUserLeagueSchema();
 
   const result = await query<DbUserRow>(
-    "select id, name, username, role, is_active, league_eligible, league_opt_in from app_users order by role desc, name asc"
+    "select id, name, username, role, is_active, paid, league_eligible, league_opt_in from app_users order by role desc, name asc"
   );
   return result.rows.map(normalizeUser);
 }
@@ -447,12 +454,13 @@ export async function getManagedUsers() {
         users.username,
         users.role,
         users.is_active,
+        users.paid,
         users.league_eligible,
         users.league_opt_in,
         count(predictions.id)::int as prediction_count
       from app_users as users
       left join predictions on predictions.user_id = users.id
-      group by users.id, users.name, users.username, users.role, users.is_active, users.league_eligible, users.league_opt_in
+      group by users.id, users.name, users.username, users.role, users.is_active, users.paid, users.league_eligible, users.league_opt_in
       order by users.role desc, users.is_active desc, users.name asc
     `
   );

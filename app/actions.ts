@@ -153,6 +153,97 @@ export async function toggleUserStatusAction(formData: FormData) {
   revalidateAppViews();
 }
 
+export async function toggleUserPaidAction(formData: FormData) {
+  await requireAdminUser();
+
+  const userId = String(formData.get("userId") ?? "");
+  const nextPaidRaw = String(formData.get("nextPaid") ?? "");
+  const nextPaid = nextPaidRaw === "true";
+
+  if (!userId || !nextPaidRaw) {
+    return;
+  }
+
+  const result = await query<{ role: "admin" | "participant" }>(
+    `
+      select role
+      from app_users
+      where id = $1
+      limit 1
+    `,
+    [userId]
+  );
+
+  const targetUser = result.rows[0];
+
+  if (!targetUser || targetUser.role === "admin") {
+    return;
+  }
+
+  await query(
+    `
+      update app_users
+      set paid = $2
+      where id = $1
+    `,
+    [userId, nextPaid]
+  );
+
+  revalidateAppViews();
+}
+
+export async function resetUserPasswordAction(
+  _previousState: { error: string; success: string },
+  formData: FormData
+) {
+  await requireAdminUser();
+  await ensureParticipantPasswordPolicy();
+
+  const userId = String(formData.get("userId") ?? "");
+  const password = String(formData.get("password") ?? "");
+
+  if (!userId || !password) {
+    return { error: "Informe a nova senha temporaria.", success: "" };
+  }
+
+  if (password.length < 4) {
+    return { error: "A senha temporaria precisa ter pelo menos 4 caracteres.", success: "" };
+  }
+
+  const result = await query<{ role: "admin" | "participant"; name: string }>(
+    `
+      select role, name
+      from app_users
+      where id = $1
+      limit 1
+    `,
+    [userId]
+  );
+
+  const targetUser = result.rows[0];
+
+  if (!targetUser || targetUser.role === "admin") {
+    return { error: "Nao foi possivel redefinir a senha desse usuario.", success: "" };
+  }
+
+  await query(
+    `
+      update app_users
+      set password_hash = $2,
+          must_change_password = true
+      where id = $1
+    `,
+    [userId, hashPassword(password)]
+  );
+
+  revalidateAppViews();
+
+  return {
+    error: "",
+    success: `Senha temporaria redefinida para ${targetUser.name}. No proximo login, a troca sera obrigatoria.`
+  };
+}
+
 export async function deleteUserAction(formData: FormData) {
   await requireAdminUser();
 

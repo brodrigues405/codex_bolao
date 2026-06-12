@@ -8,6 +8,7 @@ export interface User {
   username: string;
   role: Role;
   isActive: boolean;
+  paid?: boolean;
   leagueEligible?: boolean;
   leagueOptIn?: boolean;
 }

@@ -42,7 +42,10 @@ async function ensureAuthSchema() {
       add column if not exists league_eligible boolean not null default false;
 
       alter table app_users
-      add column if not exists league_opt_in boolean not null default false
+      add column if not exists league_opt_in boolean not null default false;
+
+      alter table app_users
+      add column if not exists paid boolean not null default false
     `).then(() => undefined);
   }
 

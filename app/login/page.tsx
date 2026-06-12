@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Trophy, Shield, TimerReset } from "lucide-react";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/login-form";
@@ -56,6 +57,26 @@ export default async function LoginPage() {
       </div>
 
       <div className="card login-card">
+        <div className="login-payment-card">
+          <div className="login-payment-copy">
+            <span className="eyebrow">Entrar no bolao</span>
+            <strong>Participe com R$ 10,00</strong>
+            <p className="muted">
+              Faça a transferencia pelo QR Code. Assim que o pagamento cair, o cadastro e os dados de acesso serão enviados.
+            </p>
+          </div>
+          <div className="login-payment-qr">
+            <Image
+              alt="QR Code para pagamento da entrada do bolao"
+              className="login-payment-qr-image"
+              height={176}
+              priority
+              src="/qrcode-andre.png"
+              width={176}
+            />
+          </div>
+        </div>
+
         <div className="login-card-copy">
           <span className="eyebrow">Login</span>
           <h2 className="section-title">Acessar conta</h2>
