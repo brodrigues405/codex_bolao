@@ -3,7 +3,7 @@ import { getFlagUrl } from "@/lib/flags";
 import { formatKickoff } from "@/lib/format";
 import { getOfficialSeedCounts } from "@/lib/official-seeds";
 import { scorePrediction } from "@/lib/scoring";
-import type { LeaderboardEntry, Match, Prediction, Role, User } from "@/lib/types";
+import type { LeaderboardEntry, ManagedUser, Match, Prediction, Role, User } from "@/lib/types";
 
 interface DbUserRow extends Record<string, unknown> {
   id: string;
@@ -11,6 +11,10 @@ interface DbUserRow extends Record<string, unknown> {
   username: string;
   role: Role;
   is_active: boolean;
+}
+
+interface DbManagedUserRow extends DbUserRow {
+  prediction_count: number;
 }
 
 interface DbMatchRow extends Record<string, unknown> {
@@ -243,7 +247,28 @@ export async function getPredictionBoard(userId: string) {
 }
 
 export async function getManagedUsers() {
-  return getUsers();
+  const result = await query<DbManagedUserRow>(
+    `
+      select
+        users.id,
+        users.name,
+        users.username,
+        users.role,
+        users.is_active,
+        count(predictions.id)::int as prediction_count
+      from app_users as users
+      left join predictions on predictions.user_id = users.id
+      group by users.id, users.name, users.username, users.role, users.is_active
+      order by users.role desc, users.is_active desc, users.name asc
+    `
+  );
+
+  return result.rows.map(
+    (row): ManagedUser => ({
+      ...normalizeUser(row),
+      predictionCount: row.prediction_count
+    })
+  );
 }
 
 export async function getAdminSummary() {

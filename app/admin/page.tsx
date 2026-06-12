@@ -1,4 +1,5 @@
 import { syncOfficialSeedsAction } from "@/app/actions";
+import { AdminUserManager } from "@/components/admin-user-manager";
 import { requireAdminUser } from "@/lib/auth";
 import { getAdminSummary, getImportChecklist, getManagedUsers } from "@/lib/data";
 
@@ -75,29 +76,7 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        <div className="card">
-          <div className="section-header">
-            <div>
-              <h2 className="section-title">Usuarios gerenciados</h2>
-              <p className="muted">Leitura direta do banco local do Docker.</p>
-            </div>
-          </div>
-          <div className="admin-list">
-            {users.map((user) => (
-              <div className="admin-item" key={user.id}>
-                <div>
-                  <strong>{user.name}</strong>
-                  <div className="muted">
-                    {user.username} • {user.role === "admin" ? "Administrador" : "Participante"}
-                  </div>
-                </div>
-                <span className={`status-pill ${user.isActive ? "open" : "locked"}`}>
-                  {user.isActive ? "ativo" : "inativo"}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <AdminUserManager users={users} />
       </div>
 
       <div className="card">

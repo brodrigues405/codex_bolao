@@ -22,6 +22,7 @@ create table if not exists app_users (
   password_hash text not null,
   role text not null check (role in ('admin', 'participant')),
   is_active boolean not null default true,
+  must_change_password boolean not null default false,
   created_at timestamptz not null default timezone('utc', now())
 );
 

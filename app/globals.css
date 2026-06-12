@@ -81,11 +81,6 @@ select {
   letter-spacing: 0.02em;
 }
 
-.brand span {
-  color: var(--muted);
-  font-size: 0.92rem;
-}
-
 .site-nav {
   display: flex;
   flex-wrap: wrap;
@@ -155,6 +150,12 @@ select {
   font-size: 1.05rem;
   line-height: 1.7;
   max-width: 62ch;
+}
+
+.login-highlight {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 1rem;
 }
 
 .button-row {
@@ -267,6 +268,14 @@ select {
   align-items: center;
   gap: 10px;
   font-size: 1rem;
+  flex-wrap: wrap;
+}
+
+.match-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
 .score-pill,
@@ -339,6 +348,178 @@ select {
   gap: 14px;
 }
 
+.login-grid {
+  align-items: stretch;
+}
+
+.login-hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 28px;
+  min-height: 560px;
+  background:
+    radial-gradient(circle at top right, rgba(22, 100, 214, 0.18), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(96, 165, 250, 0.16), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(244, 249, 255, 0.88) 100%);
+}
+
+.login-hero-copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 16px;
+}
+
+.login-hero-copy .section-title {
+  max-width: 11ch;
+  font-size: clamp(2.8rem, 4vw, 4.4rem);
+}
+
+.login-hero-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(6px);
+}
+
+.hero-orb-left {
+  left: -40px;
+  bottom: -10px;
+  width: 180px;
+  height: 180px;
+  background: rgba(22, 100, 214, 0.14);
+}
+
+.hero-orb-right {
+  top: -10px;
+  right: 40px;
+  width: 140px;
+  height: 140px;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.hero-poster {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 420px);
+  display: grid;
+  gap: 20px;
+  padding: 24px;
+  border: 1px solid rgba(19, 34, 56, 0.08);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 28px 70px rgba(15, 32, 68, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.hero-poster-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.hero-chip {
+  padding: 8px 12px;
+  border: 1px solid rgba(19, 34, 56, 0.08);
+  border-radius: 999px;
+  background: rgba(248, 251, 255, 0.88);
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.hero-cup {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+}
+
+.hero-ball {
+  position: relative;
+  width: 126px;
+  height: 126px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 30%, #ffffff 0%, #eef5ff 45%, #dbe8ff 100%);
+  border: 1px solid rgba(19, 34, 56, 0.08);
+  box-shadow: 0 18px 40px rgba(15, 32, 68, 0.12);
+}
+
+.hero-ball::before,
+.hero-ball::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+}
+
+.hero-ball::before {
+  inset: 20px;
+  border: 10px solid rgba(22, 100, 214, 0.18);
+}
+
+.hero-ball::after {
+  inset: 44px;
+  background: rgba(245, 158, 11, 0.2);
+}
+
+.hero-cup-ring {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border: 1px dashed rgba(22, 100, 214, 0.22);
+  border-radius: 999px;
+}
+
+.hero-badges {
+  display: grid;
+  gap: 12px;
+}
+
+.hero-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(19, 34, 56, 0.08);
+  border-radius: 18px;
+  background: rgba(248, 251, 255, 0.84);
+  color: var(--text);
+}
+
+.hero-badge svg {
+  color: var(--accent);
+}
+
+.login-card {
+  display: grid;
+  align-content: center;
+  gap: 20px;
+  min-height: 560px;
+}
+
+.login-card-copy {
+  display: grid;
+  gap: 12px;
+}
+
+.login-form-shell {
+  gap: 18px;
+}
+
+.admin-user-form {
+  display: grid;
+  gap: 14px;
+}
+
 .admin-list {
   display: flex;
   flex-direction: column;
@@ -354,6 +535,17 @@ select {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.74);
+}
+
+.admin-item-user {
+  align-items: flex-start;
+}
+
+.admin-user-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .tag-list {
@@ -379,6 +571,23 @@ select {
   color: #2452a1;
 }
 
+.banner-success {
+  background: #eaf8ef;
+  border-color: rgba(22, 101, 52, 0.16);
+  color: #166534;
+}
+
+.banner-danger {
+  background: #fff1f2;
+  border-color: rgba(220, 38, 38, 0.18);
+  color: #b91c1c;
+}
+
+.button-danger {
+  border-color: rgba(220, 38, 38, 0.18);
+  color: #b91c1c;
+}
+
 .success-text {
   color: #166534;
   font-size: 0.95rem;
@@ -393,6 +602,58 @@ select {
   display: grid;
   gap: 22px;
   padding: 26px;
+}
+
+.prediction-tabs-shell {
+  position: sticky;
+  top: 104px;
+  z-index: 8;
+  margin-bottom: 4px;
+}
+
+.prediction-tabs {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+}
+
+.prediction-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 160ms ease;
+}
+
+.prediction-tab small {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(19, 34, 56, 0.06);
+  color: inherit;
+  font-size: 0.78rem;
+}
+
+.prediction-tab:hover,
+.prediction-tab[data-active="true"] {
+  background: rgba(22, 100, 214, 0.12);
+  color: var(--text);
+}
+
+.prediction-tab[data-active="true"] small {
+  background: rgba(22, 100, 214, 0.18);
 }
 
 .prediction-card-header {
@@ -572,6 +833,25 @@ select {
     flex-direction: column;
   }
 
+  .login-hero,
+  .login-card {
+    min-height: auto;
+  }
+
+  .login-hero-copy .section-title {
+    max-width: none;
+    font-size: clamp(2.2rem, 9vw, 3.2rem);
+  }
+
+  .hero-poster {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .prediction-tabs-shell {
+    top: 180px;
+  }
+
   .match-row,
   .table-head,
   .table-row {
@@ -579,7 +859,8 @@ select {
   }
 
   .prediction-card-header,
-  .prediction-form-footer {
+  .prediction-form-footer,
+  .admin-item {
     align-items: flex-start;
     flex-direction: column;
   }
@@ -605,5 +886,10 @@ select {
 
   .prediction-form-footer .button {
     width: 100%;
+  }
+
+  .admin-user-actions {
+    width: 100%;
+    justify-content: flex-start;
   }
 }

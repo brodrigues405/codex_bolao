@@ -9,6 +9,10 @@ export interface User {
   isActive: boolean;
 }
 
+export interface ManagedUser extends User {
+  predictionCount: number;
+}
+
 export interface Match {
   id: string;
   fifaMatchNumber?: number;

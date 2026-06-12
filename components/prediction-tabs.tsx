@@ -1,0 +1,168 @@
+"use client";
+
+import Image from "next/image";
+import { useMemo, useState } from "react";
+import { PredictionForm } from "@/components/prediction-form";
+
+interface PredictionTabsProps {
+  matches: PredictionBoardMatch[];
+}
+
+interface PredictionBoardMatch {
+  id: string;
+  fifaMatchNumber?: number;
+  stageLabel: string;
+  groupName?: string;
+  stadium?: string;
+  city?: string;
+  kickoffLabel: string;
+  status: "open" | "locked" | "finished";
+  statusLabel: string;
+  statusClass: "open" | "locked" | "done";
+  homeTeam: string;
+  homeTeamCode?: string;
+  homeFlagUrl?: string;
+  awayTeam: string;
+  awayTeamCode?: string;
+  awayFlagUrl?: string;
+  userPrediction?: {
+    homeScore: number;
+    awayScore: number;
+  };
+}
+
+interface MatchTab {
+  id: string;
+  label: string;
+  count: number;
+}
+
+function formatVenue(stadium?: string, city?: string) {
+  if (stadium && city) return `${stadium}, ${city}`;
+  return stadium ?? city ?? "Local a definir";
+}
+
+function FlagBadge({ name, url }: { name: string; url?: string }) {
+  if (!url) {
+    return <span className="flag-placeholder">A definir</span>;
+  }
+
+  return <Image alt={`Bandeira de ${name}`} className="team-flag" height={26} src={url} width={38} />;
+}
+
+function getTabId(match: PredictionBoardMatch) {
+  if (match.groupName) {
+    return `group-${match.groupName.toLowerCase()}`;
+  }
+
+  return "knockout";
+}
+
+function getTabLabel(match: PredictionBoardMatch) {
+  if (match.groupName) {
+    return `Grupo ${match.groupName}`;
+  }
+
+  return "Mata-mata";
+}
+
+export function PredictionTabs({ matches }: PredictionTabsProps) {
+  const tabs = useMemo<MatchTab[]>(() => {
+    const groupedTabs = new Map<string, MatchTab>();
+
+    for (const match of matches) {
+      const id = getTabId(match);
+      const current = groupedTabs.get(id);
+
+      if (current) {
+        current.count += 1;
+        continue;
+      }
+
+      groupedTabs.set(id, {
+        id,
+        label: getTabLabel(match),
+        count: 1
+      });
+    }
+
+    return [
+      { id: "all", label: "Todos", count: matches.length },
+      ...Array.from(groupedTabs.values()).sort((a, b) => a.label.localeCompare(b.label, "pt-BR"))
+    ];
+  }, [matches]);
+
+  const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? "all");
+
+  const visibleMatches = useMemo(() => {
+    if (activeTab === "all") {
+      return matches;
+    }
+
+    return matches.filter((match) => getTabId(match) === activeTab);
+  }, [activeTab, matches]);
+
+  return (
+    <div className="stack">
+      <div className="prediction-tabs-shell">
+        <div className="prediction-tabs" aria-label="Filtrar palpites por grupo">
+          {tabs.map((tab) => (
+            <button
+              className="prediction-tab"
+              data-active={activeTab === tab.id}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              type="button"
+            >
+              <span>{tab.label}</span>
+              <small>{tab.count}</small>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {visibleMatches.map((match) => (
+        <div className="card prediction-card" key={match.id}>
+          <div className="prediction-card-header">
+            <div>
+              <span className="eyebrow">{match.groupName ? `Grupo ${match.groupName}` : match.stageLabel}</span>
+              <h2 className="prediction-title">
+                {match.fifaMatchNumber ? `Jogo ${match.fifaMatchNumber}` : match.stageLabel}
+              </h2>
+              <div className="prediction-meta">
+                <span>{formatVenue(match.stadium, match.city)}</span>
+                <strong>{match.kickoffLabel}</strong>
+              </div>
+            </div>
+            <span className={`status-pill ${match.statusClass}`}>{match.statusLabel}</span>
+          </div>
+
+          <div className="prediction-teams" aria-label={`${match.homeTeam} contra ${match.awayTeam}`}>
+            <div className="prediction-team home">
+              <span className="team-name">{match.homeTeam}</span>
+              <FlagBadge name={match.homeTeam} url={match.homeFlagUrl} />
+              {match.homeTeamCode ? <span className="team-code">{match.homeTeamCode}</span> : null}
+            </div>
+
+            <div className="fixture-separator">x</div>
+
+            <div className="prediction-team away">
+              <FlagBadge name={match.awayTeam} url={match.awayFlagUrl} />
+              <span className="team-name">{match.awayTeam}</span>
+              {match.awayTeamCode ? <span className="team-code">{match.awayTeamCode}</span> : null}
+            </div>
+          </div>
+
+          <PredictionForm
+            awayScore={match.userPrediction?.awayScore ?? null}
+            awayTeam={match.awayTeam}
+            canEdit={match.status === "open"}
+            homeScore={match.userPrediction?.homeScore ?? null}
+            homeTeam={match.homeTeam}
+            matchId={match.id}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}

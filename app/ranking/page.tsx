@@ -1,8 +1,8 @@
-import { requireSessionUser } from "@/lib/auth";
+import { requireReadySessionUser } from "@/lib/auth";
 import { getLeaderboard } from "@/lib/data";
 
 export default async function RankingPage() {
-  await requireSessionUser();
+  await requireReadySessionUser();
   const leaderboard = await getLeaderboard();
 
   return (

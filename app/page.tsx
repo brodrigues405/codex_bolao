@@ -1,7 +1,16 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, ChartColumn } from "lucide-react";
 import { getSessionUser } from "@/lib/auth";
 import { getAdminSummary, getLeaderboard, getUpcomingMatches } from "@/lib/data";
+
+function FlagBadge({ name, url }: { name: string; url?: string }) {
+  if (!url) {
+    return <span className="flag-placeholder">A definir</span>;
+  }
+
+  return <Image alt={`Bandeira de ${name}`} className="team-flag" height={26} src={url} width={38} />;
+}
 
 export default async function HomePage() {
   const user = await getSessionUser();
@@ -20,14 +29,18 @@ export default async function HomePage() {
           <p className="lead">
             Acompanhe os numeros principais do bolao, os proximos jogos abertos e o ranking resumido.
           </p>
+          {user ? <p className="login-highlight">Conectado como <strong>{user.name}</strong>.</p> : null}
           <div className="button-row">
-            <Link className="button button-primary" href={user ? "/dashboard" : "/login"}>
-              {user ? "Abrir dashboard" : "Entrar no bolao"}
+            <Link className="button button-primary" href={user ? (user.mustChangePassword ? "/primeiro-acesso" : "/dashboard") : "/login"}>
+              {user ? (user.mustChangePassword ? "Continuar acesso" : "Abrir dashboard") : "Entrar no bolao"}
               <ArrowRight size={16} />
             </Link>
-            {user?.role === "admin" ? (
-              <Link className="button button-secondary" href="/admin">
-                Painel admin
+            {user ? (
+              <Link
+                className="button button-secondary"
+                href={user.mustChangePassword ? "/primeiro-acesso" : user.role === "admin" ? "/admin" : "/palpites"}
+              >
+                {user.mustChangePassword ? "Trocar senha" : user.role === "admin" ? "Painel admin" : "Meus palpites"}
               </Link>
             ) : (
               <Link className="button button-secondary" href="/login">
@@ -112,9 +125,15 @@ export default async function HomePage() {
                   <div className="muted">{match.kickoffLabel}</div>
                 </div>
                 <div className="match-score">
-                  <span>{match.homeTeam}</span>
+                  <span className="match-team">
+                    <FlagBadge name={match.homeTeam} url={match.homeFlagUrl} />
+                    <span>{match.homeTeam}</span>
+                  </span>
                   <span className="score-pill">vs</span>
-                  <span>{match.awayTeam}</span>
+                  <span className="match-team">
+                    <FlagBadge name={match.awayTeam} url={match.awayFlagUrl} />
+                    <span>{match.awayTeam}</span>
+                  </span>
                 </div>
                 <div>
                   <span className={`status-pill ${match.statusClass}`}>{match.statusLabel}</span>

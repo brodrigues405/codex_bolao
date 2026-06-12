@@ -1,8 +1,17 @@
-import { requireSessionUser } from "@/lib/auth";
+import Image from "next/image";
+import { requireReadySessionUser } from "@/lib/auth";
 import { getCurrentUserDashboard, getLeaderboard, getUpcomingMatches } from "@/lib/data";
 
+function FlagBadge({ name, url }: { name: string; url?: string }) {
+  if (!url) {
+    return <span className="flag-placeholder">A definir</span>;
+  }
+
+  return <Image alt={`Bandeira de ${name}`} className="team-flag" height={26} src={url} width={38} />;
+}
+
 export default async function DashboardPage() {
-  const user = await requireSessionUser();
+  const user = await requireReadySessionUser();
   const [dashboard, leaderboard, upcoming] = await Promise.all([
     getCurrentUserDashboard(user.id),
     getLeaderboard(),
@@ -58,9 +67,15 @@ export default async function DashboardPage() {
                   <div className="muted">{match.kickoffLabel}</div>
                 </div>
                 <div className="match-score">
-                  <span>{match.homeTeam}</span>
+                  <span className="match-team">
+                    <FlagBadge name={match.homeTeam} url={match.homeFlagUrl} />
+                    <span>{match.homeTeam}</span>
+                  </span>
                   <span className="score-pill">vs</span>
-                  <span>{match.awayTeam}</span>
+                  <span className="match-team">
+                    <FlagBadge name={match.awayTeam} url={match.awayFlagUrl} />
+                    <span>{match.awayTeam}</span>
+                  </span>
                 </div>
                 <span className={`status-pill ${match.statusClass}`}>{match.statusLabel}</span>
               </div>
