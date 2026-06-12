@@ -75,6 +75,44 @@ Se voce quiser publicar depois:
 2. subir o app na `Vercel`
 3. apontar o banco para `Supabase` ou outro Postgres gerenciado free
 
+## Vercel + Supabase
+
+Se o deploy na Vercel mostrar erro parecido com `getaddrinfo ENOTFOUND db`, isso significa que a aplicacao nao recebeu uma `DATABASE_URL` valida e caiu na configuracao local do Docker, cujo host e `db`.
+
+Para publicar com Supabase:
+
+1. Abra `Supabase > Project Settings > Database`
+2. Copie a `Connection string` do tipo `URI`
+3. Use essa string completa na variavel `DATABASE_URL` da Vercel
+4. Garanta que a URL use um host real do Supabase, nunca `db`
+5. Se necessario, mantenha `sslmode=require` na string
+
+Exemplo esperado:
+
+```bash
+DATABASE_URL=postgresql://postgres.xxxxx:[SENHA]@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require
+```
+
+Observacoes importantes:
+
+- O host `db` so existe dentro do `docker-compose`
+- `.env.docker` serve apenas para ambiente local com Docker
+- A Vercel precisa ter sua propria `DATABASE_URL` configurada em `Project Settings > Environment Variables`
+- Depois de salvar a variavel, faca um novo deploy
+
+As variaveis `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` so sao necessarias se voce for usar recursos da API/Auth do Supabase. O acesso atual desta base ao banco usa `pg` com `DATABASE_URL`.
+
+## Sobre o Security Advisor do Supabase
+
+Os alertas de `RLS Disabled in Public` nao causam esse erro de conexao da Vercel. Eles indicam um ponto de seguranca: tabelas do schema `public` expostas via APIs do Supabase estao sem Row Level Security.
+
+Resumo pratico:
+
+- Isso nao explica o `ENOTFOUND db`
+- Isso pode ser um problema de seguranca se voce acessar essas tabelas pelo client do Supabase no frontend
+- Se o app continuar usando apenas conexao server-side com `pg`, o impacto imediato e menor
+- Ainda assim, vale habilitar `RLS` antes de expor leitura/escrita dessas tabelas via Supabase Auth/API
+
 ## Estrategia de importacao
 
 Fluxo recomendado para o admin:

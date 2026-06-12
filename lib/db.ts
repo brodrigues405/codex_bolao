@@ -6,7 +6,19 @@ declare global {
 }
 
 function getDatabaseUrl() {
-  return process.env.DATABASE_URL ?? "postgresql://bolao:bolao123@db:5432/bolao";
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+
+  if (databaseUrl) {
+    return databaseUrl;
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    return "postgresql://bolao:bolao123@db:5432/bolao";
+  }
+
+  throw new Error(
+    "DATABASE_URL nao definida. Em producao, configure a string de conexao completa do Postgres/Supabase nas variaveis do ambiente."
+  );
 }
 
 export function getPool() {

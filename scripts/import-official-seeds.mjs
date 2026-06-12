@@ -9,7 +9,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
 
-const databaseUrl = process.env.DATABASE_URL ?? "postgresql://bolao:bolao123@db:5432/bolao";
+function getDatabaseUrl() {
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+
+  if (databaseUrl) {
+    return databaseUrl;
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    return "postgresql://bolao:bolao123@db:5432/bolao";
+  }
+
+  throw new Error(
+    "DATABASE_URL nao definida. Em producao, configure a string de conexao completa do Postgres/Supabase."
+  );
+}
+
+const databaseUrl = getDatabaseUrl();
 
 const groupsPath = path.join(rootDir, "seed", "groups.json");
 const teamsPath = path.join(rootDir, "seed", "teams.json");
