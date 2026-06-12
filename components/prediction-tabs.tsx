@@ -3,32 +3,10 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { PredictionForm } from "@/components/prediction-form";
+import type { PredictionBoardMatch } from "@/lib/types";
 
 interface PredictionTabsProps {
   matches: PredictionBoardMatch[];
-}
-
-interface PredictionBoardMatch {
-  id: string;
-  fifaMatchNumber?: number;
-  stageLabel: string;
-  groupName?: string;
-  stadium?: string;
-  city?: string;
-  kickoffLabel: string;
-  status: "open" | "locked" | "finished";
-  statusLabel: string;
-  statusClass: "open" | "locked" | "done";
-  homeTeam: string;
-  homeTeamCode?: string;
-  homeFlagUrl?: string;
-  awayTeam: string;
-  awayTeamCode?: string;
-  awayFlagUrl?: string;
-  userPrediction?: {
-    homeScore: number;
-    awayScore: number;
-  };
 }
 
 interface MatchTab {

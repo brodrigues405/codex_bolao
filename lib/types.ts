@@ -1,5 +1,6 @@
 export type Role = "admin" | "participant";
 export type MatchStatus = "open" | "locked" | "finished";
+export type MatchStatusClass = "open" | "locked" | "done";
 
 export interface User {
   id: string;
@@ -50,4 +51,14 @@ export interface LeaderboardEntry {
   points: number;
   exactHits: number;
   resultHits: number;
+}
+
+export interface DecoratedMatch extends Match {
+  kickoffLabel: string;
+  statusLabel: string;
+  statusClass: MatchStatusClass;
+}
+
+export interface PredictionBoardMatch extends DecoratedMatch {
+  userPrediction?: Prediction;
 }

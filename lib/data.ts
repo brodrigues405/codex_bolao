@@ -3,7 +3,17 @@ import { getFlagUrl } from "@/lib/flags";
 import { formatKickoff } from "@/lib/format";
 import { getOfficialSeedCounts } from "@/lib/official-seeds";
 import { scorePrediction } from "@/lib/scoring";
-import type { LeaderboardEntry, ManagedUser, Match, Prediction, Role, User } from "@/lib/types";
+import type {
+  DecoratedMatch,
+  LeaderboardEntry,
+  ManagedUser,
+  Match,
+  MatchStatusClass,
+  Prediction,
+  PredictionBoardMatch,
+  Role,
+  User
+} from "@/lib/types";
 
 interface DbUserRow extends Record<string, unknown> {
   id: string;
@@ -58,7 +68,7 @@ function toStatusLabel(status: Match["status"]) {
   return "finalizado";
 }
 
-function toStatusClass(status: Match["status"]) {
+function toStatusClass(status: Match["status"]): MatchStatusClass {
   if (status === "open") return "open";
   if (status === "locked") return "locked";
   return "done";
@@ -221,7 +231,7 @@ export async function getCurrentUserDashboard(userId: string) {
   };
 }
 
-export async function getUpcomingMatches() {
+export async function getUpcomingMatches(): Promise<DecoratedMatch[]> {
   const matches = await getMatches();
 
   return matches
@@ -234,7 +244,7 @@ export async function getUpcomingMatches() {
     }));
 }
 
-export async function getPredictionBoard(userId: string) {
+export async function getPredictionBoard(userId: string): Promise<PredictionBoardMatch[]> {
   const [matches, predictions] = await Promise.all([getMatches(), getPredictions()]);
 
   return matches.map((match) => ({
