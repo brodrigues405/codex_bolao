@@ -278,6 +278,25 @@ select {
   min-width: 0;
 }
 
+.home-agenda-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.home-agenda-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .score-pill,
 .status-pill {
   display: inline-flex;
@@ -769,6 +788,63 @@ select {
   gap: 16px;
 }
 
+.prediction-peer-banner {
+  margin-top: -4px;
+}
+
+.prediction-peer-section {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.prediction-peer-header {
+  display: grid;
+  gap: 4px;
+}
+
+.prediction-peer-list {
+  display: grid;
+  gap: 10px;
+}
+
+.prediction-peer-item {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(248, 251, 255, 0.72);
+}
+
+.prediction-peer-item[data-match="true"] {
+  border-color: rgba(22, 100, 214, 0.24);
+  background: rgba(220, 234, 255, 0.78);
+}
+
+.prediction-peer-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-radius: 999px;
+  background: #f8fbff;
+  border: 1px solid var(--line);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.prediction-peer-meta {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
 .prediction-score-inputs {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr);
@@ -866,7 +942,8 @@ select {
   }
 
   .prediction-teams,
-  .prediction-score-inputs {
+  .prediction-score-inputs,
+  .prediction-peer-item {
     grid-template-columns: 1fr;
   }
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useActionState } from "react";
 import { savePredictionAction } from "@/app/actions";
+import type { PeerPrediction } from "@/lib/types";
 
 interface PredictionFormProps {
   awayScore: number | null;
@@ -11,6 +12,7 @@ interface PredictionFormProps {
   homeScore: number | null;
   homeTeam: string;
   matchId: string;
+  peerPredictions: PeerPrediction[];
 }
 
 const initialState = {
@@ -24,7 +26,8 @@ export function PredictionForm({
   canEdit,
   homeScore,
   homeTeam,
-  matchId
+  matchId,
+  peerPredictions
 }: PredictionFormProps) {
   const [state, action, isPending] = useActionState(savePredictionAction, initialState);
   const hasPrediction = homeScore !== null && awayScore !== null;
@@ -39,6 +42,38 @@ export function PredictionForm({
   const isFilled = homeValue !== "" && awayValue !== "";
   const isValidScore = (value: string) => /^\d{1,2}$/.test(value);
   const canSubmit = canEdit && isFilled && isValidScore(homeValue) && isValidScore(awayValue) && !isPending;
+  const currentScoreline = isFilled && isValidScore(homeValue) && isValidScore(awayValue) ? `${homeValue}x${awayValue}` : null;
+  const groupedPeerPredictions = useMemo(() => {
+    const groups = new Map<string, { scoreline: string; names: string[] }>();
+
+    for (const prediction of peerPredictions) {
+      const scoreline = `${prediction.homeScore}x${prediction.awayScore}`;
+      const existing = groups.get(scoreline);
+
+      if (existing) {
+        existing.names.push(prediction.name);
+        continue;
+      }
+
+      groups.set(scoreline, {
+        scoreline,
+        names: [prediction.name]
+      });
+    }
+
+    return Array.from(groups.values())
+      .map((group) => ({
+        ...group,
+        names: group.names.sort((a, b) => a.localeCompare(b, "pt-BR"))
+      }))
+      .sort((a, b) => {
+        if (b.names.length !== a.names.length) return b.names.length - a.names.length;
+        return a.scoreline.localeCompare(b.scoreline, "pt-BR");
+      });
+  }, [peerPredictions]);
+  const matchingPredictionGroup = currentScoreline
+    ? groupedPeerPredictions.find((group) => group.scoreline === currentScoreline)
+    : undefined;
 
   return (
     <form action={action} className="prediction-form">
@@ -99,6 +134,35 @@ export function PredictionForm({
       {canEdit && !isFilled ? <span className="muted">Preencha os dois placares para habilitar o salvamento.</span> : null}
       {canEdit && isFilled && (!isValidScore(homeValue) || !isValidScore(awayValue)) ? (
         <span className="danger-text">Use apenas numeros inteiros de 0 a 99.</span>
+      ) : null}
+      {matchingPredictionGroup ? (
+        <div className="banner prediction-peer-banner">
+          Esse palpite ja foi escolhido por {matchingPredictionGroup.names.join(", ")}.
+        </div>
+      ) : null}
+
+      {groupedPeerPredictions.length > 0 ? (
+        <div className="prediction-peer-section">
+          <div className="prediction-peer-header">
+            <strong>Palpites dos colegas</strong>
+            <span className="muted">Veja os placares mais repetidos e tente se diferenciar se quiser.</span>
+          </div>
+          <div className="prediction-peer-list">
+            {groupedPeerPredictions.map((group) => (
+              <div
+                className="prediction-peer-item"
+                data-match={group.scoreline === currentScoreline}
+                key={group.scoreline}
+              >
+                <div className="prediction-peer-score">{group.scoreline}</div>
+                <div className="prediction-peer-meta">
+                  <strong>{group.names.length} colega(s)</strong>
+                  <span className="muted">{group.names.join(", ")}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       ) : null}
       {state.error ? <span className="danger-text">{state.error}</span> : null}
       {state.success ? <span className="success-text">{state.success}</span> : null}

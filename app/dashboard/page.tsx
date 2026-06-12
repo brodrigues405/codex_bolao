@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { requireReadySessionUser } from "@/lib/auth";
 import { getCurrentUserDashboard, getLeaderboard, getUpcomingMatches } from "@/lib/data";
 
@@ -17,6 +18,9 @@ export default async function DashboardPage() {
     getLeaderboard(),
     getUpcomingMatches()
   ]);
+  const futureMatches = upcoming.filter((match) => new Date(match.kickoffAtUtc).getTime() > Date.now());
+  const leader = leaderboard[0];
+  const pointsGap = leader ? Math.max(leader.points - dashboard.points, 0) : 0;
 
   return (
     <>
@@ -56,11 +60,11 @@ export default async function DashboardPage() {
           <div className="section-header">
             <div>
               <h2 className="section-title">Meus proximos palpites</h2>
-              <p className="muted">Os jogos ficam bloqueados automaticamente no horario oficial.</p>
+              <p className="muted">Aqui aparecem apenas os jogos que ainda podem entrar no seu radar.</p>
             </div>
           </div>
           <div className="stack">
-            {upcoming.slice(0, 5).map((match) => (
+            {futureMatches.slice(0, 5).map((match) => (
               <div className="match-row" key={match.id}>
                 <div>
                   <strong>{match.stageLabel}</strong>
@@ -80,33 +84,52 @@ export default async function DashboardPage() {
                 <span className={`status-pill ${match.statusClass}`}>{match.statusLabel}</span>
               </div>
             ))}
+            {futureMatches.length === 0 ? <div className="banner">Nenhum proximo jogo disponivel no momento.</div> : null}
           </div>
         </div>
 
         <div className="card">
           <div className="section-header">
             <div>
-              <h2 className="section-title">Ranking rapido</h2>
-              <p className="muted">Resumo curto para consulta do participante.</p>
+              <h2 className="section-title">Minha situacao no ranking</h2>
+              <p className="muted">Resumo pessoal para acompanhar sua disputa sem repetir a home.</p>
             </div>
           </div>
-          <div className="table">
-            <div className="table-head">
-              <span>Pos</span>
-              <span>Participante</span>
-              <span>Pontos</span>
-              <span>Exatos</span>
-              <span>Resultados</span>
-            </div>
-            {leaderboard.slice(0, 6).map((entry) => (
-              <div className="table-row" key={entry.userId}>
-                <strong>{entry.position}</strong>
-                <span>{entry.name}</span>
-                <strong>{entry.points}</strong>
-                <span>{entry.exactHits}</span>
-                <span>{entry.resultHits}</span>
+          <div className="stack">
+            <div className="admin-item">
+              <div>
+                <strong>Sua colocacao atual</strong>
+                <div className="muted">
+                  {dashboard.position > 0
+                    ? `${dashboard.position}o lugar entre ${leaderboard.length} participantes`
+                    : "Voce ainda nao entrou no ranking"}
+                </div>
               </div>
-            ))}
+              <span className="status-pill open">{dashboard.position > 0 ? `${dashboard.position}o` : "--"}</span>
+            </div>
+
+            <div className="admin-item">
+              <div>
+                <strong>Lider atual</strong>
+                <div className="muted">
+                  {leader ? `${leader.name} com ${leader.points} ponto(s)` : "Nenhum participante no ranking ainda"}
+                </div>
+              </div>
+              <span className="status-pill">{leader ? `${pointsGap} atras` : "--"}</span>
+            </div>
+
+            <div className="admin-item">
+              <div>
+                <strong>Leitura rapida</strong>
+                <div className="muted">
+                  O ranking da home e o ranking completo usam a mesma classificacao geral. No dashboard, deixamos o foco no
+                  seu contexto.
+                </div>
+              </div>
+              <Link className="button button-secondary" href="/ranking">
+                Ver ranking completo
+              </Link>
+            </div>
           </div>
         </div>
       </section>

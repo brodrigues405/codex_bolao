@@ -1,10 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import type { DecoratedMatch } from "@/lib/types";
 
 interface HomeAgendaTabsProps {
+  actionHref: string;
+  actionLabel: string;
   matches: DecoratedMatch[];
 }
 
@@ -16,7 +19,7 @@ function FlagBadge({ name, url }: { name: string; url?: string }) {
   return <Image alt={`Bandeira de ${name}`} className="team-flag" height={26} src={url} width={38} />;
 }
 
-export function HomeAgendaTabs({ matches }: HomeAgendaTabsProps) {
+export function HomeAgendaTabs({ actionHref, actionLabel, matches }: HomeAgendaTabsProps) {
   const now = Date.now();
   const upcomingMatches = matches.filter((match) => new Date(match.kickoffAtUtc).getTime() > now);
   const lockedMatches = matches.filter((match) => new Date(match.kickoffAtUtc).getTime() <= now);
@@ -73,7 +76,14 @@ export function HomeAgendaTabs({ matches }: HomeAgendaTabsProps) {
                 </span>
               </div>
               <div>
-                <span className={`status-pill ${match.statusClass}`}>{match.statusLabel}</span>
+                <div className="home-agenda-actions">
+                  <span className={`status-pill ${match.statusClass}`}>{match.statusLabel}</span>
+                  {activeTab === "upcoming" ? (
+                    <Link className="home-agenda-link status-pill open" href={actionHref}>
+                      {actionLabel}
+                    </Link>
+                  ) : null}
+                </div>
               </div>
             </div>
           ))}

@@ -6,6 +6,8 @@ import { getAdminSummary, getLeaderboard, getUpcomingMatches } from "@/lib/data"
 
 export default async function HomePage() {
   const user = await getSessionUser();
+  const agendaActionHref = user ? (user.mustChangePassword ? "/primeiro-acesso" : "/palpites") : "/login";
+  const agendaActionLabel = user ? "Palpitar" : "Entrar";
   const [summary, leaderboard, upcoming] = await Promise.all([
     getAdminSummary(),
     getLeaderboard(),
@@ -108,7 +110,7 @@ export default async function HomePage() {
               </p>
             </div>
           </div>
-          <HomeAgendaTabs matches={upcoming} />
+          <HomeAgendaTabs actionHref={agendaActionHref} actionLabel={agendaActionLabel} matches={upcoming} />
         </div>
       </section>
     </>

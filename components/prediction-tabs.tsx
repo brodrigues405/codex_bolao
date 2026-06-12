@@ -189,6 +189,7 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
                 homeScore={match.userPrediction?.homeScore ?? null}
                 homeTeam={match.homeTeam}
                 matchId={match.id}
+                peerPredictions={match.peerPredictions}
               />
             </div>
           ))}

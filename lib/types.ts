@@ -44,6 +44,13 @@ export interface Prediction {
   awayScore: number;
 }
 
+export interface PeerPrediction {
+  userId: string;
+  name: string;
+  homeScore: number;
+  awayScore: number;
+}
+
 export interface LeaderboardEntry {
   userId: string;
   name: string;
@@ -61,4 +68,5 @@ export interface DecoratedMatch extends Match {
 
 export interface PredictionBoardMatch extends DecoratedMatch {
   userPrediction?: Prediction;
+  peerPredictions: PeerPrediction[];
 }

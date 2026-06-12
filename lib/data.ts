@@ -9,6 +9,7 @@ import type {
   ManagedUser,
   Match,
   MatchStatusClass,
+  PeerPrediction,
   Prediction,
   PredictionBoardMatch,
   Role,
@@ -245,14 +246,32 @@ export async function getUpcomingMatches(): Promise<DecoratedMatch[]> {
 }
 
 export async function getPredictionBoard(userId: string): Promise<PredictionBoardMatch[]> {
-  const [matches, predictions] = await Promise.all([getMatches(), getPredictions()]);
+  const [matches, predictions, users] = await Promise.all([getMatches(), getPredictions(), getUsers()]);
+  const usersById = new Map(users.map((user) => [user.id, user]));
 
   return matches.map((match) => ({
     ...match,
     kickoffLabel: formatKickoff(match.kickoffAtUtc),
     statusLabel: toStatusLabel(match.status),
     statusClass: toStatusClass(match.status),
-    userPrediction: predictions.find((prediction) => prediction.userId === userId && prediction.matchId === match.id)
+    userPrediction: predictions.find((prediction) => prediction.userId === userId && prediction.matchId === match.id),
+    peerPredictions: predictions
+      .filter((prediction) => prediction.matchId === match.id && prediction.userId !== userId)
+      .map((prediction): PeerPrediction | null => {
+        const author = usersById.get(prediction.userId);
+
+        if (!author || author.role !== "participant" || !author.isActive) {
+          return null;
+        }
+
+        return {
+          userId: prediction.userId,
+          name: author.name,
+          homeScore: prediction.homeScore,
+          awayScore: prediction.awayScore
+        };
+      })
+      .filter((prediction): prediction is PeerPrediction => prediction !== null)
   }));
 }
 
