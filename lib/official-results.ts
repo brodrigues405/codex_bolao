@@ -22,7 +22,7 @@ function normalizeElapsed(value?: string) {
   return value?.trim().toLowerCase() ?? "";
 }
 
-function toMatchStatus(game: ExternalGame): "scheduled" | "in_progress" | "finished" {
+export function toOfficialMatchStatus(game: ExternalGame): "scheduled" | "in_progress" | "finished" {
   const elapsed = normalizeElapsed(game.time_elapsed);
 
   if (normalizeApiFlag(game.finished) || elapsed === "finished" || elapsed === "ft") {
@@ -36,7 +36,7 @@ function toMatchStatus(game: ExternalGame): "scheduled" | "in_progress" | "finis
   return "scheduled";
 }
 
-function parseScore(value?: string) {
+export function parseOfficialScore(value?: string) {
   if (value === undefined || value === null) {
     return null;
   }
@@ -45,12 +45,12 @@ function parseScore(value?: string) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-export async function syncOfficialResults() {
+export async function getOfficialGamesSnapshot(options?: { revalidateSeconds?: number }) {
   const response = await fetch(OFFICIAL_GAMES_API_URL, {
     headers: {
       Accept: "application/json"
     },
-    next: { revalidate: 0 }
+    next: { revalidate: options?.revalidateSeconds ?? 120 }
   });
 
   if (!response.ok) {
@@ -63,18 +63,24 @@ export async function syncOfficialResults() {
     throw new Error("Resposta invalida da API de resultados oficiais.");
   }
 
+  return payload.games;
+}
+
+export async function syncOfficialResults() {
+  const games = await getOfficialGamesSnapshot({ revalidateSeconds: 0 });
+
   let updated = 0;
 
-  for (const game of payload.games) {
+  for (const game of games) {
     const fifaMatchNumber = Number(game.id);
 
     if (!Number.isInteger(fifaMatchNumber)) {
       continue;
     }
 
-    const status = toMatchStatus(game);
-    const homeScore = status === "finished" ? parseScore(game.home_score) : null;
-    const awayScore = status === "finished" ? parseScore(game.away_score) : null;
+    const status = toOfficialMatchStatus(game);
+    const homeScore = status === "finished" ? parseOfficialScore(game.home_score) : null;
+    const awayScore = status === "finished" ? parseOfficialScore(game.away_score) : null;
 
     const result = await query<{ id: string }>(
       `
@@ -93,6 +99,6 @@ export async function syncOfficialResults() {
 
   return {
     updated,
-    sourceCount: payload.games.length
+    sourceCount: games.length
   };
 }

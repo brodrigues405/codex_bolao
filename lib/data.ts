@@ -1,6 +1,7 @@
 import { query } from "@/lib/db";
 import { getFlagUrl } from "@/lib/flags";
 import { formatKickoff } from "@/lib/format";
+import { getOfficialGamesSnapshot, parseOfficialScore, toOfficialMatchStatus } from "@/lib/official-results";
 import { getOfficialSeedCounts } from "@/lib/official-seeds";
 import { scorePrediction } from "@/lib/scoring";
 import type {
@@ -61,6 +62,12 @@ function getMatchStatus(row: DbMatchRow): Match["status"] {
   if (row.status === "finished") return "finished";
   if (row.status === "in_progress") return "locked";
   if (new Date(row.kickoff_at_utc).getTime() <= Date.now()) return "locked";
+  return "open";
+}
+
+function mapDbStatusToMatchStatus(status: DbMatchRow["status"]): Match["status"] {
+  if (status === "finished") return "finished";
+  if (status === "in_progress") return "locked";
   return "open";
 }
 
@@ -145,7 +152,50 @@ async function getMatches() {
     `
   );
 
-  const normalized = result.rows.map(normalizeMatch);
+  let officialGamesByNumber = new Map<number, Awaited<ReturnType<typeof getOfficialGamesSnapshot>>[number]>();
+
+  try {
+    const officialGames = await getOfficialGamesSnapshot();
+    officialGamesByNumber = new Map(
+      officialGames
+        .map((game) => [Number(game.id), game] as const)
+        .filter(([matchNumber]) => Number.isInteger(matchNumber))
+    );
+  } catch {
+    officialGamesByNumber = new Map();
+  }
+
+  const normalized = result.rows.map((row) => {
+    const baseMatch = normalizeMatch(row);
+    const officialGame = row.fifa_match_number ? officialGamesByNumber.get(row.fifa_match_number) : undefined;
+
+    if (!officialGame) {
+      return baseMatch;
+    }
+
+    const externalStatus = toOfficialMatchStatus(officialGame);
+    const externalHomeScore = parseOfficialScore(officialGame.home_score);
+    const externalAwayScore = parseOfficialScore(officialGame.away_score);
+    const dbStatus = mapDbStatusToMatchStatus(row.status);
+    const mergedStatus =
+      externalStatus === "finished"
+        ? "finished"
+        : dbStatus === "finished"
+          ? "finished"
+          : externalStatus === "in_progress" || dbStatus === "locked"
+            ? "locked"
+            : baseMatch.status;
+    const mergedOfficialScore =
+      externalStatus === "finished" && externalHomeScore !== null && externalAwayScore !== null
+        ? { homeScore: externalHomeScore, awayScore: externalAwayScore }
+        : baseMatch.officialScore;
+
+    return {
+      ...baseMatch,
+      status: mergedStatus,
+      officialScore: mergedOfficialScore
+    };
+  });
   const seen = new Set<string>();
 
   return normalized.filter((match) => {
