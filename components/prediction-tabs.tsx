@@ -15,7 +15,7 @@ interface MatchTab {
   count: number;
 }
 
-type StatusTabId = "available" | "completed";
+type StatusTabId = "available" | "locked" | "completed";
 
 function formatVenue(stadium?: string, city?: string) {
   if (stadium && city) return `${stadium}, ${city}`;
@@ -54,7 +54,11 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
       return matches.filter((match) => match.status === "open");
     }
 
-    return matches.filter((match) => match.status !== "open");
+    if (activeStatusTab === "locked") {
+      return matches.filter((match) => match.status === "locked");
+    }
+
+    return matches.filter((match) => match.status === "finished");
   }, [activeStatusTab, matches]);
 
   const tabs = useMemo<MatchTab[]>(() => {
@@ -114,12 +118,21 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
             </button>
             <button
               className="prediction-tab"
+              data-active={activeStatusTab === "locked"}
+              onClick={() => setActiveStatusTab("locked")}
+              type="button"
+            >
+              <span>Jogos bloqueados</span>
+              <small>{matches.filter((match) => match.status === "locked").length}</small>
+            </button>
+            <button
+              className="prediction-tab"
               data-active={activeStatusTab === "completed"}
               onClick={() => setActiveStatusTab("completed")}
               type="button"
             >
               <span>Jogos finalizados</span>
-              <small>{matches.filter((match) => match.status !== "open").length}</small>
+              <small>{matches.filter((match) => match.status === "finished").length}</small>
             </button>
           </div>
 
@@ -144,7 +157,9 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
         <div className="banner">
           {activeStatusTab === "available"
             ? "Nenhum jogo disponivel para palpitar neste filtro."
-            : "Nenhum jogo finalizado para consultar neste filtro."}
+            : activeStatusTab === "locked"
+              ? "Nenhum jogo bloqueado para consultar neste filtro."
+              : "Nenhum jogo finalizado para consultar neste filtro."}
         </div>
       ) : (
         <>
@@ -162,7 +177,11 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
                   </div>
                 </div>
                 <span className={`status-pill ${match.statusClass}`}>
-                  {match.status === "open" ? "Disponivel" : "Jogo finalizado"}
+                  {match.status === "open"
+                    ? "Disponivel"
+                    : match.status === "locked"
+                      ? "Palpite bloqueado"
+                      : "Jogo finalizado"}
                 </span>
               </div>
 
@@ -181,6 +200,20 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
                   {match.awayTeamCode ? <span className="team-code">{match.awayTeamCode}</span> : null}
                 </div>
               </div>
+
+              {match.officialScore ? (
+                <div className="prediction-official-result">
+                  <small>Resultado oficial</small>
+                  <strong>
+                    {match.homeTeam} {match.officialScore.homeScore} x {match.officialScore.awayScore} {match.awayTeam}
+                  </strong>
+                </div>
+              ) : match.status !== "open" ? (
+                <div className="prediction-official-result prediction-official-result-pending">
+                  <small>Resultado oficial</small>
+                  <strong>Aguardando sincronizacao do placar final.</strong>
+                </div>
+              ) : null}
 
               <PredictionForm
                 awayScore={match.userPrediction?.awayScore ?? null}

@@ -6,7 +6,7 @@ export default async function PrimeiroAcessoPage() {
   const user = await requireSessionUser();
 
   if (!user.mustChangePassword) {
-    redirect(user.role === "admin" ? "/admin" : "/dashboard");
+    redirect(user.role === "admin" ? "/admin" : "/");
   }
 
   return (

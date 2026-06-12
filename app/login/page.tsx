@@ -11,7 +11,7 @@ export default async function LoginPage() {
       redirect("/primeiro-acesso");
     }
 
-    redirect(user.role === "admin" ? "/admin" : "/dashboard");
+    redirect(user.role === "admin" ? "/admin" : "/");
   }
 
   return (

@@ -23,10 +23,12 @@ function FlagBadge({ name, url }: { name: string; url?: string }) {
 export function HomeAgendaTabs({ actionHref, actionLabel, matches }: HomeAgendaTabsProps) {
   const now = Date.now();
   const upcomingMatches = matches.filter((match) => new Date(match.kickoffAtUtc).getTime() > now);
-  const lockedMatches = matches.filter((match) => new Date(match.kickoffAtUtc).getTime() <= now);
-  const [activeTab, setActiveTab] = useState(upcomingMatches.length > 0 ? "upcoming" : "locked");
+  const lockedMatches = matches.filter((match) => match.status === "locked");
+  const finishedMatches = matches.filter((match) => match.status === "finished");
+  const [activeTab, setActiveTab] = useState(upcomingMatches.length > 0 ? "upcoming" : lockedMatches.length > 0 ? "locked" : "finished");
 
-  const visibleMatches = activeTab === "upcoming" ? upcomingMatches : lockedMatches;
+  const visibleMatches =
+    activeTab === "upcoming" ? upcomingMatches : activeTab === "locked" ? lockedMatches : finishedMatches;
 
   return (
     <div className="stack">
@@ -46,8 +48,17 @@ export function HomeAgendaTabs({ actionHref, actionLabel, matches }: HomeAgendaT
           onClick={() => setActiveTab("locked")}
           type="button"
         >
-          <span>Jogos finalizados</span>
+          <span>Jogos bloqueados</span>
           <small>{lockedMatches.length}</small>
+        </button>
+        <button
+          className="prediction-tab"
+          data-active={activeTab === "finished"}
+          onClick={() => setActiveTab("finished")}
+          type="button"
+        >
+          <span>Jogos finalizados</span>
+          <small>{finishedMatches.length}</small>
         </button>
       </div>
 
@@ -55,7 +66,9 @@ export function HomeAgendaTabs({ actionHref, actionLabel, matches }: HomeAgendaT
         <div className="banner">
           {activeTab === "upcoming"
             ? "Nenhum jogo futuro encontrado na agenda."
-            : "Nenhum jogo finalizado para exibir no momento."}
+            : activeTab === "locked"
+              ? "Nenhum jogo bloqueado para exibir no momento."
+              : "Nenhum jogo finalizado para exibir no momento."}
         </div>
       ) : (
         <div className="stack">
@@ -86,6 +99,14 @@ export function HomeAgendaTabs({ actionHref, actionLabel, matches }: HomeAgendaT
                   ) : null}
                 </div>
               </div>
+              {activeTab === "finished" && match.officialScore ? (
+                <div className="home-agenda-result">
+                  <small>Resultado oficial</small>
+                  <strong>
+                    {match.homeTeam} {match.officialScore.homeScore} x {match.officialScore.awayScore} {match.awayTeam}
+                  </strong>
+                </div>
+              ) : null}
             </div>
           ))}
         </div>

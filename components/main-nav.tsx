@@ -10,7 +10,6 @@ const links: Array<{ href: Route; label: string }> = [
   { href: "/", label: "Inicio" },
   { href: "/login", label: "Login" },
   { href: "/primeiro-acesso", label: "Trocar senha" },
-  { href: "/dashboard", label: "Dashboard" },
   { href: "/palpites", label: "Palpites" },
   { href: "/ranking", label: "Ranking" },
   { href: "/admin", label: "Admin" }
@@ -23,7 +22,7 @@ export function MainNav({ user }: { user: SessionUser | null }) {
     if (link.href === "/primeiro-acesso") return Boolean(user?.mustChangePassword);
     if (user?.mustChangePassword) return link.href === "/";
     if (link.href === "/admin") return user?.role === "admin";
-    if (link.href === "/dashboard" || link.href === "/palpites" || link.href === "/ranking") {
+    if (link.href === "/palpites" || link.href === "/ranking") {
       return Boolean(user);
     }
     return true;

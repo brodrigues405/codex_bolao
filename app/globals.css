@@ -297,6 +297,20 @@ select {
   text-decoration: none;
 }
 
+.home-agenda-result {
+  display: grid;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+.home-agenda-result small {
+  color: var(--muted);
+}
+
+.home-agenda-result strong {
+  font-size: 1rem;
+}
+
 .score-pill,
 .status-pill {
   display: inline-flex;
@@ -786,6 +800,29 @@ select {
 .prediction-form {
   display: grid;
   gap: 16px;
+}
+
+.prediction-official-result {
+  display: grid;
+  gap: 6px;
+  padding: 14px 18px;
+  border: 1px solid rgba(22, 100, 214, 0.14);
+  border-radius: var(--radius-lg);
+  background: rgba(220, 234, 255, 0.42);
+}
+
+.prediction-official-result small {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.prediction-official-result strong {
+  font-size: 1.1rem;
+}
+
+.prediction-official-result-pending {
+  background: rgba(255, 244, 223, 0.5);
+  border-color: rgba(245, 158, 11, 0.2);
 }
 
 .prediction-peer-banner {

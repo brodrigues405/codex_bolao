@@ -13,12 +13,12 @@ import {
   requireSessionUser
 } from "@/lib/auth";
 import { query } from "@/lib/db";
+import { syncOfficialResults } from "@/lib/official-results";
 import { syncOfficialSeeds } from "@/lib/official-seeds";
 
 function revalidateAppViews() {
   revalidatePath("/");
   revalidatePath("/admin");
-  revalidatePath("/dashboard");
   revalidatePath("/palpites");
   revalidatePath("/ranking");
   revalidatePath("/primeiro-acesso");
@@ -45,7 +45,7 @@ export async function loginAction(
     redirect("/primeiro-acesso");
   }
 
-  redirect(result.user.role === "admin" ? "/admin" : "/dashboard");
+  redirect(result.user.role === "admin" ? "/admin" : "/");
 }
 
 export async function logoutAction() {
@@ -56,6 +56,13 @@ export async function logoutAction() {
 export async function syncOfficialSeedsAction() {
   await requireAdminUser();
   await syncOfficialSeeds();
+
+  revalidateAppViews();
+}
+
+export async function syncOfficialResultsAction() {
+  await requireAdminUser();
+  await syncOfficialResults();
 
   revalidateAppViews();
 }
@@ -200,7 +207,7 @@ export async function changeOwnPasswordAction(
   await changeOwnPassword(user.id, password);
   revalidateAppViews();
 
-  redirect(user.role === "admin" ? "/admin" : "/dashboard");
+  redirect(user.role === "admin" ? "/admin" : "/");
 }
 
 export async function savePredictionAction(

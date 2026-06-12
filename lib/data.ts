@@ -245,6 +245,17 @@ export async function getUpcomingMatches(): Promise<DecoratedMatch[]> {
     }));
 }
 
+export async function getAgendaMatches(): Promise<DecoratedMatch[]> {
+  const matches = await getMatches();
+
+  return matches.map((match) => ({
+    ...match,
+    kickoffLabel: formatKickoff(match.kickoffAtUtc),
+    statusLabel: toStatusLabel(match.status),
+    statusClass: toStatusClass(match.status)
+  }));
+}
+
 export async function getPredictionBoard(userId: string): Promise<PredictionBoardMatch[]> {
   const [matches, predictions, users] = await Promise.all([getMatches(), getPredictions(), getUsers()]);
   const usersById = new Map(users.map((user) => [user.id, user]));

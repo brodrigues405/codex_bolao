@@ -1,4 +1,4 @@
-import { syncOfficialSeedsAction } from "@/app/actions";
+import { syncOfficialResultsAction, syncOfficialSeedsAction } from "@/app/actions";
 import { AdminUserManager } from "@/components/admin-user-manager";
 import { requireAdminUser } from "@/lib/auth";
 import { getAdminSummary, getImportChecklist, getManagedUsers } from "@/lib/data";
@@ -57,11 +57,18 @@ export default async function AdminPage() {
               <h2 className="section-title">Checklist de importacao</h2>
               <p className="muted">Fluxo recomendado para a carga inicial da Copa.</p>
             </div>
-            <form action={syncOfficialSeedsAction}>
-              <button className="button button-primary" type="submit">
-                Sincronizar tabela oficial
-              </button>
-            </form>
+            <div className="admin-user-actions">
+              <form action={syncOfficialSeedsAction}>
+                <button className="button button-primary" type="submit">
+                  Sincronizar tabela oficial
+                </button>
+              </form>
+              <form action={syncOfficialResultsAction}>
+                <button className="button button-secondary" type="submit">
+                  Buscar resultados oficiais
+                </button>
+              </form>
+            </div>
           </div>
           <div className="admin-list">
             {checklist.map((item) => (
