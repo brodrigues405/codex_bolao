@@ -57,6 +57,7 @@ interface DbPredictionRow extends Record<string, unknown> {
 }
 
 function getMatchStatus(row: DbMatchRow): Match["status"] {
+  if (row.home_score !== null && row.away_score !== null) return "finished";
   if (row.status === "finished") return "finished";
   if (row.status === "in_progress") return "locked";
   if (new Date(row.kickoff_at_utc).getTime() <= Date.now()) return "locked";
