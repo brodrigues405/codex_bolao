@@ -19,6 +19,7 @@ MVP de bolao corporativo com foco em simplicidade operacional, custo baixo e dep
 - autenticacao local simples via cookie para ambiente Docker
 - leitura real do `Postgres` local para home, dashboard, ranking, admin e palpites
 - schema inicial do Supabase em [supabase/schema.sql](/c:/Users/Enterprise/Desktop/codex_bolao/supabase/schema.sql)
+- seed inicial do Supabase em [supabase/seed.sql](/c:/Users/Enterprise/Desktop/codex_bolao/supabase/seed.sql)
 - ambiente Docker local com app + Postgres em [docker-compose.yml](/c:/Users/Enterprise/Desktop/codex_bolao/docker-compose.yml)
 - schema local do banco em [docker/postgres/init/001_schema.sql](/c:/Users/Enterprise/Desktop/codex_bolao/docker/postgres/init/001_schema.sql)
 - seed local com usuarios de desenvolvimento em [docker/postgres/init/002_seed.sql](/c:/Users/Enterprise/Desktop/codex_bolao/docker/postgres/init/002_seed.sql)
@@ -101,6 +102,33 @@ Observacoes importantes:
 - Depois de salvar a variavel, faca um novo deploy
 
 As variaveis `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` so sao necessarias se voce for usar recursos da API/Auth do Supabase. O acesso atual desta base ao banco usa `pg` com `DATABASE_URL`.
+
+## Carga inicial no Supabase
+
+Para este projeto funcionar na Vercel com Supabase, o banco remoto precisa ter o mesmo schema usado no Docker local.
+
+Arquivos corretos:
+
+- schema: [supabase/schema.sql](/c:/Users/Enterprise/Desktop/codex_bolao/supabase/schema.sql)
+- seed do admin: [supabase/seed.sql](/c:/Users/Enterprise/Desktop/codex_bolao/supabase/seed.sql)
+
+Passo a passo:
+
+1. Abra o `SQL Editor` do Supabase
+2. Rode primeiro `supabase/schema.sql`
+3. Rode depois `supabase/seed.sql`
+4. Entre na aplicacao com `admin/admin123`
+5. Abra `/admin`
+6. Clique em `Sincronizar tabela oficial`
+
+O botao `Sincronizar tabela oficial` carrega os arquivos versionados `seed/groups.json`, `seed/teams.json` e `seed/matches.json` para as tabelas `groups`, `teams` e `matches`.
+
+Se o banco remoto tiver sido criado com uma versao antiga do schema, a aplicacao pode autenticar o admin e ainda assim mostrar `0` jogos, porque o app espera estas estruturas:
+
+- tabela `app_users`, nao `users`
+- `teams` com `unique (code, group_id)`
+- `matches` com coluna `external_id`
+- `app_users` com coluna `must_change_password`
 
 ## Sobre o Security Advisor do Supabase
 

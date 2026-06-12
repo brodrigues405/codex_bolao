@@ -1,16 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, ChartColumn } from "lucide-react";
+import { HomeAgendaTabs } from "@/components/home-agenda-tabs";
 import { getSessionUser } from "@/lib/auth";
 import { getAdminSummary, getLeaderboard, getUpcomingMatches } from "@/lib/data";
-
-function FlagBadge({ name, url }: { name: string; url?: string }) {
-  if (!url) {
-    return <span className="flag-placeholder">A definir</span>;
-  }
-
-  return <Image alt={`Bandeira de ${name}`} className="team-flag" height={26} src={url} width={38} />;
-}
 
 export default async function HomePage() {
   const user = await getSessionUser();
@@ -114,33 +106,9 @@ export default async function HomePage() {
                 <BadgeCheck size={16} />
                 Agenda
               </p>
-              <h2 className="section-title">Proximos jogos</h2>
             </div>
           </div>
-          <div className="stack">
-            {upcoming.slice(0, 4).map((match) => (
-              <div className="match-row" key={match.id}>
-                <div>
-                  <strong>{match.stageLabel}</strong>
-                  <div className="muted">{match.kickoffLabel}</div>
-                </div>
-                <div className="match-score">
-                  <span className="match-team">
-                    <FlagBadge name={match.homeTeam} url={match.homeFlagUrl} />
-                    <span>{match.homeTeam}</span>
-                  </span>
-                  <span className="score-pill">vs</span>
-                  <span className="match-team">
-                    <FlagBadge name={match.awayTeam} url={match.awayFlagUrl} />
-                    <span>{match.awayTeam}</span>
-                  </span>
-                </div>
-                <div>
-                  <span className={`status-pill ${match.statusClass}`}>{match.statusLabel}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <HomeAgendaTabs matches={upcoming} />
         </div>
       </section>
     </>

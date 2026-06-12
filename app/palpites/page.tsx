@@ -12,7 +12,7 @@ export default async function PalpitesPage() {
         <span className="eyebrow">Palpites</span>
         <h1 className="section-title">Editar palpites do usuario</h1>
         <p className="lead">
-          Informe os placares antes do inicio de cada partida. Jogos travados continuam visiveis para consulta.
+          Use a aba de jogos disponiveis para preencher palpites antes do inicio. Jogos finalizados ficam separados para consulta.
         </p>
       </div>
 

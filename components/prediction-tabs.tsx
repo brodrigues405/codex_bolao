@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PredictionForm } from "@/components/prediction-form";
 import type { PredictionBoardMatch } from "@/lib/types";
 
@@ -14,6 +14,8 @@ interface MatchTab {
   label: string;
   count: number;
 }
+
+type StatusTabId = "available" | "completed";
 
 function formatVenue(stadium?: string, city?: string) {
   if (stadium && city) return `${stadium}, ${city}`;
@@ -45,10 +47,20 @@ function getTabLabel(match: PredictionBoardMatch) {
 }
 
 export function PredictionTabs({ matches }: PredictionTabsProps) {
+  const [activeStatusTab, setActiveStatusTab] = useState<StatusTabId>("available");
+
+  const filteredMatches = useMemo(() => {
+    if (activeStatusTab === "available") {
+      return matches.filter((match) => match.status === "open");
+    }
+
+    return matches.filter((match) => match.status !== "open");
+  }, [activeStatusTab, matches]);
+
   const tabs = useMemo<MatchTab[]>(() => {
     const groupedTabs = new Map<string, MatchTab>();
 
-    for (const match of matches) {
+    for (const match of filteredMatches) {
       const id = getTabId(match);
       const current = groupedTabs.get(id);
 
@@ -65,82 +77,123 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
     }
 
     return [
-      { id: "all", label: "Todos", count: matches.length },
+      { id: "all", label: "Todos", count: filteredMatches.length },
       ...Array.from(groupedTabs.values()).sort((a, b) => a.label.localeCompare(b.label, "pt-BR"))
     ];
-  }, [matches]);
+  }, [filteredMatches]);
 
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? "all");
 
+  useEffect(() => {
+    if (!tabs.some((tab) => tab.id === activeTab)) {
+      setActiveTab("all");
+    }
+  }, [activeTab, tabs]);
+
   const visibleMatches = useMemo(() => {
     if (activeTab === "all") {
-      return matches;
+      return filteredMatches;
     }
 
-    return matches.filter((match) => getTabId(match) === activeTab);
-  }, [activeTab, matches]);
+    return filteredMatches.filter((match) => getTabId(match) === activeTab);
+  }, [activeTab, filteredMatches]);
 
   return (
     <div className="stack">
       <div className="prediction-tabs-shell">
-        <div className="prediction-tabs" aria-label="Filtrar palpites por grupo">
-          {tabs.map((tab) => (
+        <div className="stack">
+          <div className="prediction-tabs" aria-label="Filtrar palpites por status">
             <button
               className="prediction-tab"
-              data-active={activeTab === tab.id}
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              data-active={activeStatusTab === "available"}
+              onClick={() => setActiveStatusTab("available")}
               type="button"
             >
-              <span>{tab.label}</span>
-              <small>{tab.count}</small>
+              <span>Jogos disponiveis</span>
+              <small>{matches.filter((match) => match.status === "open").length}</small>
             </button>
-          ))}
+            <button
+              className="prediction-tab"
+              data-active={activeStatusTab === "completed"}
+              onClick={() => setActiveStatusTab("completed")}
+              type="button"
+            >
+              <span>Jogos finalizados</span>
+              <small>{matches.filter((match) => match.status !== "open").length}</small>
+            </button>
+          </div>
+
+          <div className="prediction-tabs" aria-label="Filtrar palpites por grupo">
+            {tabs.map((tab) => (
+              <button
+                className="prediction-tab"
+                data-active={activeTab === tab.id}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                type="button"
+              >
+                <span>{tab.label}</span>
+                <small>{tab.count}</small>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {visibleMatches.map((match) => (
-        <div className="card prediction-card" key={match.id}>
-          <div className="prediction-card-header">
-            <div>
-              <span className="eyebrow">{match.groupName ? `Grupo ${match.groupName}` : match.stageLabel}</span>
-              <h2 className="prediction-title">
-                {match.fifaMatchNumber ? `Jogo ${match.fifaMatchNumber}` : match.stageLabel}
-              </h2>
-              <div className="prediction-meta">
-                <span>{formatVenue(match.stadium, match.city)}</span>
-                <strong>{match.kickoffLabel}</strong>
-              </div>
-            </div>
-            <span className={`status-pill ${match.statusClass}`}>{match.statusLabel}</span>
-          </div>
-
-          <div className="prediction-teams" aria-label={`${match.homeTeam} contra ${match.awayTeam}`}>
-            <div className="prediction-team home">
-              <span className="team-name">{match.homeTeam}</span>
-              <FlagBadge name={match.homeTeam} url={match.homeFlagUrl} />
-              {match.homeTeamCode ? <span className="team-code">{match.homeTeamCode}</span> : null}
-            </div>
-
-            <div className="fixture-separator">x</div>
-
-            <div className="prediction-team away">
-              <FlagBadge name={match.awayTeam} url={match.awayFlagUrl} />
-              <span className="team-name">{match.awayTeam}</span>
-              {match.awayTeamCode ? <span className="team-code">{match.awayTeamCode}</span> : null}
-            </div>
-          </div>
-
-          <PredictionForm
-            awayScore={match.userPrediction?.awayScore ?? null}
-            awayTeam={match.awayTeam}
-            canEdit={match.status === "open"}
-            homeScore={match.userPrediction?.homeScore ?? null}
-            homeTeam={match.homeTeam}
-            matchId={match.id}
-          />
+      {visibleMatches.length === 0 ? (
+        <div className="banner">
+          {activeStatusTab === "available"
+            ? "Nenhum jogo disponivel para palpitar neste filtro."
+            : "Nenhum jogo finalizado para consultar neste filtro."}
         </div>
-      ))}
+      ) : (
+        <>
+          {visibleMatches.map((match) => (
+            <div className="card prediction-card" key={match.id}>
+              <div className="prediction-card-header">
+                <div>
+                  <span className="eyebrow">{match.groupName ? `Grupo ${match.groupName}` : match.stageLabel}</span>
+                  <h2 className="prediction-title">
+                    {match.fifaMatchNumber ? `Jogo ${match.fifaMatchNumber}` : match.stageLabel}
+                  </h2>
+                  <div className="prediction-meta">
+                    <span>{formatVenue(match.stadium, match.city)}</span>
+                    <strong>{match.kickoffLabel}</strong>
+                  </div>
+                </div>
+                <span className={`status-pill ${match.statusClass}`}>
+                  {match.status === "open" ? "Disponivel" : "Jogo finalizado"}
+                </span>
+              </div>
+
+              <div className="prediction-teams" aria-label={`${match.homeTeam} contra ${match.awayTeam}`}>
+                <div className="prediction-team home">
+                  <span className="team-name">{match.homeTeam}</span>
+                  <FlagBadge name={match.homeTeam} url={match.homeFlagUrl} />
+                  {match.homeTeamCode ? <span className="team-code">{match.homeTeamCode}</span> : null}
+                </div>
+
+                <div className="fixture-separator">x</div>
+
+                <div className="prediction-team away">
+                  <FlagBadge name={match.awayTeam} url={match.awayFlagUrl} />
+                  <span className="team-name">{match.awayTeam}</span>
+                  {match.awayTeamCode ? <span className="team-code">{match.awayTeamCode}</span> : null}
+                </div>
+              </div>
+
+              <PredictionForm
+                awayScore={match.userPrediction?.awayScore ?? null}
+                awayTeam={match.awayTeam}
+                canEdit={match.status === "open"}
+                homeScore={match.userPrediction?.homeScore ?? null}
+                homeTeam={match.homeTeam}
+                matchId={match.id}
+              />
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 }

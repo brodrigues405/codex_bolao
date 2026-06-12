@@ -223,6 +223,10 @@ export async function savePredictionAction(
     return { error: "Use apenas numeros inteiros iguais ou maiores que zero.", success: "" };
   }
 
+  if (homeScore > 99 || awayScore > 99) {
+    return { error: "Use placares entre 0 e 99.", success: "" };
+  }
+
   const matchResult = await query<{
     id: string;
     status: "scheduled" | "in_progress" | "finished";
