@@ -11,8 +11,10 @@ interface PredictionFormProps {
   canEdit: boolean;
   homeScore: number | null;
   homeTeam: string;
+  isLaunchMatch?: boolean;
   matchId: string;
   peerPredictions: PeerPrediction[];
+  userLeagueOptIn?: boolean;
 }
 
 const initialState = {
@@ -26,18 +28,25 @@ export function PredictionForm({
   canEdit,
   homeScore,
   homeTeam,
+  isLaunchMatch = false,
   matchId,
-  peerPredictions
+  peerPredictions,
+  userLeagueOptIn = false
 }: PredictionFormProps) {
   const [state, action, isPending] = useActionState(savePredictionAction, initialState);
   const hasPrediction = homeScore !== null && awayScore !== null;
   const [homeValue, setHomeValue] = useState(homeScore?.toString() ?? "");
   const [awayValue, setAwayValue] = useState(awayScore?.toString() ?? "");
+  const [joinGeneralLeague, setJoinGeneralLeague] = useState(userLeagueOptIn);
 
   useEffect(() => {
     setHomeValue(homeScore?.toString() ?? "");
     setAwayValue(awayScore?.toString() ?? "");
   }, [awayScore, homeScore]);
+
+  useEffect(() => {
+    setJoinGeneralLeague(userLeagueOptIn);
+  }, [userLeagueOptIn]);
 
   const isFilled = homeValue !== "" && awayValue !== "";
   const isValidScore = (value: string) => /^\d{1,2}$/.test(value);
@@ -78,6 +87,9 @@ export function PredictionForm({
   return (
     <form action={action} className="prediction-form">
       <input name="matchId" type="hidden" value={matchId} />
+      {isLaunchMatch ? (
+        <input name="joinGeneralLeague" type="hidden" value={joinGeneralLeague ? "true" : "false"} />
+      ) : null}
 
       <div className="prediction-score-inputs">
         <label className="score-field">
@@ -115,18 +127,42 @@ export function PredictionForm({
         </label>
       </div>
 
+      {isLaunchMatch && canEdit ? (
+        <label className="prediction-league-optin">
+          <input
+            checked={joinGeneralLeague}
+            disabled={isPending}
+            onChange={(event) => setJoinGeneralLeague(event.target.checked)}
+            type="checkbox"
+          />
+          <span>
+            Quero entrar tambem na Liga Geral a partir do jogo do Brasil.
+          </span>
+        </label>
+      ) : null}
+
       <div className="prediction-form-footer">
         <div className="prediction-state">
           <small>Status do palpite</small>
           <strong>{hasPrediction ? "Salvo" : "Pendente"}</strong>
           <span className="muted">
-            {canEdit ? "Edicao liberada ate o horario de inicio." : "Jogo finalizado para envio de palpite."}
+            {canEdit
+              ? "Edicao liberada ate o horario de inicio."
+              : "Edicao encerrada. Consulte o resultado oficial e os palpites registrados."}
           </span>
         </div>
 
         {canEdit ? (
           <button className="button button-primary" disabled={!canSubmit} type="submit">
-            {isPending ? "Salvando..." : hasPrediction ? "Atualizar" : "Salvar"}
+            {isPending
+              ? "Salvando..."
+              : isLaunchMatch
+                ? hasPrediction
+                  ? "Atualizar palpite"
+                  : "Enviar meu palpite"
+                : hasPrediction
+                  ? "Atualizar"
+                  : "Salvar"}
           </button>
         ) : null}
       </div>

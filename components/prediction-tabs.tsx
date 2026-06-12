@@ -164,10 +164,13 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
       ) : (
         <>
           {visibleMatches.map((match) => (
-            <div className="card prediction-card" key={match.id}>
+            <div className="card prediction-card" id={match.isLaunchMatch ? "launch-match" : undefined} key={match.id}>
               <div className="prediction-card-header">
                 <div>
-                  <span className="eyebrow">{match.groupName ? `Grupo ${match.groupName}` : match.stageLabel}</span>
+                  <div className="prediction-card-badges">
+                    <span className="eyebrow">{match.groupName ? `Grupo ${match.groupName}` : match.stageLabel}</span>
+                    {match.isLaunchMatch ? <span className="status-pill open">Jogo de estreia do bolao</span> : null}
+                  </div>
                   <h2 className="prediction-title">
                     {match.fifaMatchNumber ? `Jogo ${match.fifaMatchNumber}` : match.stageLabel}
                   </h2>
@@ -221,8 +224,10 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
                 canEdit={match.status === "open"}
                 homeScore={match.userPrediction?.homeScore ?? null}
                 homeTeam={match.homeTeam}
+                isLaunchMatch={match.isLaunchMatch}
                 matchId={match.id}
                 peerPredictions={match.peerPredictions}
+                userLeagueOptIn={match.userLeagueOptIn}
               />
             </div>
           ))}

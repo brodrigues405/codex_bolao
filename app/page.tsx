@@ -1,22 +1,23 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
 import { ArrowRight, BadgeCheck, ChartColumn } from "lucide-react";
 import { HomeAgendaTabs } from "@/components/home-agenda-tabs";
 import { HomeHubTabs } from "@/components/home-hub-tabs";
 import { getSessionUser } from "@/lib/auth";
-import { getAdminSummary, getAgendaMatches, getCurrentUserDashboard, getLeaderboard } from "@/lib/data";
+import { getAdminSummary, getAgendaMatches, getCurrentUserDashboard, getLaunchMatch, getLeaderboard } from "@/lib/data";
 
 export default async function HomePage() {
   const user = await getSessionUser();
   const agendaActionHref: Route = user ? (user.mustChangePassword ? "/primeiro-acesso" : "/palpites") : "/login";
   const agendaActionLabel = user ? "Palpitar" : "Entrar";
-  const isParticipantViewAvailable = Boolean(user && !user.mustChangePassword);
   const [summary, leaderboard, upcoming, participantDashboard] = await Promise.all([
     getAdminSummary(),
     getLeaderboard(),
     getAgendaMatches(),
     user && !user.mustChangePassword ? getCurrentUserDashboard(user.id) : Promise.resolve(null)
   ]);
+  const launchMatch = await getLaunchMatch();
   const leader = leaderboard[0];
   const pointsGap = leader && participantDashboard ? Math.max(leader.points - participantDashboard.points, 0) : 0;
   const primaryActionHref: Route = user ? (user.mustChangePassword ? "/primeiro-acesso" : "/palpites") : "/login";
@@ -223,6 +224,61 @@ export default async function HomePage() {
             )}
           </div>
         </div>
+        {launchMatch ? (
+          <div className="card launch-card">
+            <div className="launch-card-copy">
+              <span className="eyebrow">Bolao de estreia</span>
+              <h2 className="section-title">Bolao de estreia: Brasil x Marrocos</h2>
+              <p className="lead launch-lead">
+                O bolao comeca hoje em modo teste com o jogo do Brasil. Faca seu palpite, acompanhe o ranking do jogo e ajude a validar o sistema antes da abertura completa da Liga da Copa.
+              </p>
+              <div className="launch-match-line">
+                {launchMatch.homeFlagUrl ? (
+                  <Image
+                    alt={`Bandeira de ${launchMatch.homeTeam}`}
+                    className="team-flag"
+                    height={26}
+                    src={launchMatch.homeFlagUrl}
+                    width={38}
+                  />
+                ) : null}
+                <strong>{launchMatch.homeTeam}</strong>
+                <span className="score-pill">x</span>
+                {launchMatch.awayFlagUrl ? (
+                  <Image
+                    alt={`Bandeira de ${launchMatch.awayTeam}`}
+                    className="team-flag"
+                    height={26}
+                    src={launchMatch.awayFlagUrl}
+                    width={38}
+                  />
+                ) : null}
+                <strong>{launchMatch.awayTeam}</strong>
+              </div>
+              <div className="prediction-meta">
+                <span>{launchMatch.stageLabel}</span>
+                <strong>{new Intl.DateTimeFormat("pt-BR", {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                  timeZone: "America/Sao_Paulo"
+                }).format(new Date(launchMatch.kickoffAtUtc))}</strong>
+              </div>
+              <div className="button-row">
+                <a className="button button-primary" href="/palpites#launch-match">
+                  Palpitar no jogo do Brasil
+                  <ArrowRight size={16} />
+                </a>
+                <span className={`status-pill ${launchMatch.statusClass}`}>
+                  {launchMatch.status === "open"
+                    ? "Disponivel agora"
+                    : launchMatch.status === "locked"
+                      ? "Palpite bloqueado"
+                      : "Resultado encerrado"}
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div className="grid-3">
           <div className="card">

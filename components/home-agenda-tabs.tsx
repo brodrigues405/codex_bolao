@@ -73,9 +73,12 @@ export function HomeAgendaTabs({ actionHref, actionLabel, matches }: HomeAgendaT
       ) : (
         <div className="stack">
           {visibleMatches.slice(0, 4).map((match) => (
-            <div className="match-row" key={match.id}>
+            <div className="match-row" data-launch={match.isLaunchMatch} key={match.id}>
               <div>
-                <strong>{match.stageLabel}</strong>
+                <div className="home-agenda-stage">
+                  <strong>{match.stageLabel}</strong>
+                  {match.isLaunchMatch ? <span className="status-pill open">Estreia do bolao</span> : null}
+                </div>
                 <div className="muted">{match.kickoffLabel}</div>
               </div>
               <div className="match-score">
@@ -94,7 +97,7 @@ export function HomeAgendaTabs({ actionHref, actionLabel, matches }: HomeAgendaT
                   <span className={`status-pill ${match.statusClass}`}>{match.statusLabel}</span>
                   {activeTab === "upcoming" ? (
                     <Link className="home-agenda-link status-pill open" href={actionHref}>
-                      {actionLabel}
+                      {match.isLaunchMatch ? "Palpitar no jogo do Brasil" : actionLabel}
                     </Link>
                   ) : null}
                 </div>

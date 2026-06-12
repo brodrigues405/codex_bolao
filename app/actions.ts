@@ -15,6 +15,7 @@ import {
 import { query } from "@/lib/db";
 import { syncOfficialResults } from "@/lib/official-results";
 import { syncOfficialSeeds } from "@/lib/official-seeds";
+import { isLaunchMatchNumber } from "@/lib/launch-mode";
 
 function revalidateAppViews() {
   revalidatePath("/");
@@ -236,11 +237,12 @@ export async function savePredictionAction(
 
   const matchResult = await query<{
     id: string;
+    fifa_match_number: number | null;
     status: "scheduled" | "in_progress" | "finished";
     kickoff_at_utc: string;
   }>(
     `
-      select id, status, kickoff_at_utc::text
+      select id, fifa_match_number, status, kickoff_at_utc::text
       from matches
       where id = $1
       limit 1
@@ -258,6 +260,8 @@ export async function savePredictionAction(
     return { error: "Este jogo ja foi bloqueado para palpites.", success: "" };
   }
 
+  const joinGeneralLeague = String(formData.get("joinGeneralLeague") ?? "") === "true";
+
   await query(
     `
       insert into predictions (user_id, match_id, predicted_home_score, predicted_away_score, points_awarded)
@@ -270,7 +274,26 @@ export async function savePredictionAction(
     [user.id, matchId, homeScore, awayScore]
   );
 
+  if (isLaunchMatchNumber(match.fifa_match_number)) {
+    await query(
+      `
+        update app_users
+        set league_eligible = true,
+            league_opt_in = $2
+        where id = $1
+      `,
+      [user.id, joinGeneralLeague]
+    );
+  }
+
   revalidateAppViews();
+
+  if (isLaunchMatchNumber(match.fifa_match_number)) {
+    return {
+      error: "",
+      success: "Palpite salvo! Voce ja esta participando do Bolao de Estreia. O ranking sera atualizado apos o resultado oficial."
+    };
+  }
 
   return { error: "", success: "Palpite salvo com sucesso." };
 }

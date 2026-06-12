@@ -12,7 +12,7 @@ export default async function PalpitesPage() {
         <span className="eyebrow">Palpites</span>
         <h1 className="section-title">Editar palpites do usuario</h1>
         <p className="lead">
-          Use a aba de jogos disponiveis para preencher palpites antes do inicio. Jogos finalizados ficam separados para consulta.
+          Use a aba de jogos disponiveis para preencher palpites antes do inicio. O jogo Brasil x Marrocos abre o Bolao de Estreia e aparece primeiro enquanto estiver disponivel.
         </p>
       </div>
 

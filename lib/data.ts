@@ -1,12 +1,14 @@
 import { query } from "@/lib/db";
 import { getFlagUrl } from "@/lib/flags";
 import { formatKickoff } from "@/lib/format";
+import { isLaunchMatchNumber } from "@/lib/launch-mode";
 import { getOfficialGamesSnapshot, parseOfficialScore, toOfficialMatchStatus } from "@/lib/official-results";
 import { getOfficialSeedCounts } from "@/lib/official-seeds";
 import { scorePrediction } from "@/lib/scoring";
 import type {
   DecoratedMatch,
   LeaderboardEntry,
+  LaunchMatchLeaderboardEntry,
   ManagedUser,
   Match,
   MatchStatusClass,
@@ -17,12 +19,19 @@ import type {
   User
 } from "@/lib/types";
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __bolaoUserLeagueSchemaPromise: Promise<void> | undefined;
+}
+
 interface DbUserRow extends Record<string, unknown> {
   id: string;
   name: string;
   username: string;
   role: Role;
   is_active: boolean;
+  league_eligible: boolean;
+  league_opt_in: boolean;
 }
 
 interface DbManagedUserRow extends DbUserRow {
@@ -57,6 +66,20 @@ interface DbPredictionRow extends Record<string, unknown> {
   predicted_away_score: number;
 }
 
+async function ensureUserLeagueSchema() {
+  if (!global.__bolaoUserLeagueSchemaPromise) {
+    global.__bolaoUserLeagueSchemaPromise = query(`
+      alter table app_users
+      add column if not exists league_eligible boolean not null default false;
+
+      alter table app_users
+      add column if not exists league_opt_in boolean not null default false
+    `).then(() => undefined);
+  }
+
+  return global.__bolaoUserLeagueSchemaPromise;
+}
+
 function getMatchStatus(row: DbMatchRow): Match["status"] {
   if (row.home_score !== null && row.away_score !== null) return "finished";
   if (row.status === "finished") return "finished";
@@ -89,7 +112,9 @@ function normalizeUser(row: DbUserRow): User {
     name: row.name,
     username: row.username,
     role: row.role,
-    isActive: row.is_active
+    isActive: row.is_active,
+    leagueEligible: row.league_eligible,
+    leagueOptIn: row.league_opt_in
   };
 }
 
@@ -113,13 +138,16 @@ function normalizeMatch(row: DbMatchRow): Match {
     officialScore:
       row.home_score !== null && row.away_score !== null
         ? { homeScore: row.home_score, awayScore: row.away_score }
-        : undefined
+        : undefined,
+    isLaunchMatch: isLaunchMatchNumber(row.fifa_match_number)
   };
 }
 
 async function getUsers() {
+  await ensureUserLeagueSchema();
+
   const result = await query<DbUserRow>(
-    "select id, name, username, role, is_active from app_users order by role desc, name asc"
+    "select id, name, username, role, is_active, league_eligible, league_opt_in from app_users order by role desc, name asc"
   );
   return result.rows.map(normalizeUser);
 }
@@ -232,11 +260,20 @@ async function getPredictions() {
 
 export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   const [users, matches, predictions] = await Promise.all([getUsers(), getMatches(), getPredictions()]);
+  const launchMatch = matches.find((match) => match.isLaunchMatch);
+  const launchKickoff = launchMatch ? new Date(launchMatch.kickoffAtUtc).getTime() : Number.NEGATIVE_INFINITY;
 
   return users
-    .filter((user) => user.role === "participant")
+    .filter((user) => user.role === "participant" && user.isActive && user.leagueOptIn)
     .map((user) => {
-      const userPredictions = predictions.filter((prediction) => prediction.userId === user.id);
+      const userPredictions = predictions.filter((prediction) => {
+        if (prediction.userId !== user.id) return false;
+
+        const match = matches.find((item) => item.id === prediction.matchId);
+        if (!match) return false;
+
+        return new Date(match.kickoffAtUtc).getTime() >= launchKickoff;
+      });
       const totals = userPredictions.reduce(
         (accumulator, prediction) => {
           const match = matches.find((item) => item.id === prediction.matchId);
@@ -269,6 +306,60 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       return b.resultHits - a.resultHits;
     })
     .map((entry, index) => ({ ...entry, position: index + 1 }));
+}
+
+export async function getLaunchMatchLeaderboard(): Promise<LaunchMatchLeaderboardEntry[]> {
+  const [users, matches, predictions] = await Promise.all([getUsers(), getMatches(), getPredictions()]);
+  const launchMatch = matches.find((match) => match.isLaunchMatch);
+
+  if (!launchMatch) {
+    return [];
+  }
+
+  return users
+    .filter((user) => user.role === "participant" && user.isActive)
+    .map((user) => {
+      const prediction = predictions.find((item) => item.userId === user.id && item.matchId === launchMatch.id);
+
+      if (!prediction) {
+        return null;
+      }
+
+      const score = scorePrediction(launchMatch, prediction);
+
+      return {
+        userId: user.id,
+        name: user.name,
+        position: 0,
+        points: score.points,
+        exactHits: Number(score.exactHit),
+        resultHits: Number(score.resultHit),
+        joinedGeneralLeague: Boolean(user.leagueOptIn)
+      };
+    })
+    .filter((entry): entry is LaunchMatchLeaderboardEntry => entry !== null)
+    .sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.exactHits !== a.exactHits) return b.exactHits - a.exactHits;
+      return b.resultHits - a.resultHits;
+    })
+    .map((entry, index) => ({ ...entry, position: index + 1 }));
+}
+
+export async function getLaunchMatch() {
+  const matches = await getMatches();
+  const match = matches.find((item) => item.isLaunchMatch);
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    ...match,
+    kickoffLabel: formatKickoff(match.kickoffAtUtc),
+    statusLabel: toStatusLabel(match.status),
+    statusClass: toStatusClass(match.status)
+  };
 }
 
 export async function getCurrentUserDashboard(userId: string) {
@@ -310,34 +401,44 @@ export async function getAgendaMatches(): Promise<DecoratedMatch[]> {
 export async function getPredictionBoard(userId: string): Promise<PredictionBoardMatch[]> {
   const [matches, predictions, users] = await Promise.all([getMatches(), getPredictions(), getUsers()]);
   const usersById = new Map(users.map((user) => [user.id, user]));
+  const currentUser = usersById.get(userId);
 
-  return matches.map((match) => ({
-    ...match,
-    kickoffLabel: formatKickoff(match.kickoffAtUtc),
-    statusLabel: toStatusLabel(match.status),
-    statusClass: toStatusClass(match.status),
-    userPrediction: predictions.find((prediction) => prediction.userId === userId && prediction.matchId === match.id),
-    peerPredictions: predictions
-      .filter((prediction) => prediction.matchId === match.id && prediction.userId !== userId)
-      .map((prediction): PeerPrediction | null => {
-        const author = usersById.get(prediction.userId);
+  return matches
+    .map((match) => ({
+      ...match,
+      kickoffLabel: formatKickoff(match.kickoffAtUtc),
+      statusLabel: toStatusLabel(match.status),
+      statusClass: toStatusClass(match.status),
+      userPrediction: predictions.find((prediction) => prediction.userId === userId && prediction.matchId === match.id),
+      peerPredictions: predictions
+        .filter((prediction) => prediction.matchId === match.id && prediction.userId !== userId)
+        .map((prediction): PeerPrediction | null => {
+          const author = usersById.get(prediction.userId);
 
-        if (!author || author.role !== "participant" || !author.isActive) {
-          return null;
-        }
+          if (!author || author.role !== "participant" || !author.isActive) {
+            return null;
+          }
 
-        return {
-          userId: prediction.userId,
-          name: author.name,
-          homeScore: prediction.homeScore,
-          awayScore: prediction.awayScore
-        };
-      })
-      .filter((prediction): prediction is PeerPrediction => prediction !== null)
-  }));
+          return {
+            userId: prediction.userId,
+            name: author.name,
+            homeScore: prediction.homeScore,
+            awayScore: prediction.awayScore
+          };
+        })
+        .filter((prediction): prediction is PeerPrediction => prediction !== null),
+      userLeagueOptIn: currentUser?.leagueOptIn
+    }))
+    .sort((a, b) => {
+      if (a.isLaunchMatch && !b.isLaunchMatch) return -1;
+      if (!a.isLaunchMatch && b.isLaunchMatch) return 1;
+      return new Date(a.kickoffAtUtc).getTime() - new Date(b.kickoffAtUtc).getTime();
+    });
 }
 
 export async function getManagedUsers() {
+  await ensureUserLeagueSchema();
+
   const result = await query<DbManagedUserRow>(
     `
       select
@@ -346,10 +447,12 @@ export async function getManagedUsers() {
         users.username,
         users.role,
         users.is_active,
+        users.league_eligible,
+        users.league_opt_in,
         count(predictions.id)::int as prediction_count
       from app_users as users
       left join predictions on predictions.user_id = users.id
-      group by users.id, users.name, users.username, users.role, users.is_active
+      group by users.id, users.name, users.username, users.role, users.is_active, users.league_eligible, users.league_opt_in
       order by users.role desc, users.is_active desc, users.name asc
     `
   );

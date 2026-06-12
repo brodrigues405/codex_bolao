@@ -8,6 +8,8 @@ export interface User {
   username: string;
   role: Role;
   isActive: boolean;
+  leagueEligible?: boolean;
+  leagueOptIn?: boolean;
 }
 
 export interface ManagedUser extends User {
@@ -34,6 +36,7 @@ export interface Match {
     homeScore: number;
     awayScore: number;
   };
+  isLaunchMatch?: boolean;
 }
 
 export interface Prediction {
@@ -60,6 +63,10 @@ export interface LeaderboardEntry {
   resultHits: number;
 }
 
+export interface LaunchMatchLeaderboardEntry extends LeaderboardEntry {
+  joinedGeneralLeague: boolean;
+}
+
 export interface DecoratedMatch extends Match {
   kickoffLabel: string;
   statusLabel: string;
@@ -69,4 +76,5 @@ export interface DecoratedMatch extends Match {
 export interface PredictionBoardMatch extends DecoratedMatch {
   userPrediction?: Prediction;
   peerPredictions: PeerPrediction[];
+  userLeagueOptIn?: boolean;
 }

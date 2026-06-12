@@ -36,7 +36,13 @@ async function ensureAuthSchema() {
   if (!global.__bolaoAuthSchemaPromise) {
     global.__bolaoAuthSchemaPromise = query(`
       alter table app_users
-      add column if not exists must_change_password boolean not null default false
+      add column if not exists must_change_password boolean not null default false;
+
+      alter table app_users
+      add column if not exists league_eligible boolean not null default false;
+
+      alter table app_users
+      add column if not exists league_opt_in boolean not null default false
     `).then(() => undefined);
   }
 
