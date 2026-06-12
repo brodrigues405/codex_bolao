@@ -193,6 +193,11 @@ select {
   border: 1px solid var(--line);
 }
 
+.button-success {
+  background: #22c55e;
+  color: white;
+}
+
 .grid-4,
 .grid-3,
 .grid-2 {
@@ -554,9 +559,7 @@ select {
 }
 
 .login-payment-card {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  display: grid;
   gap: 18px;
   padding: 18px;
   border: 1px solid rgba(22, 100, 214, 0.14);
@@ -580,6 +583,13 @@ select {
   line-height: 1.55;
 }
 
+.login-payment-side {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
 .login-payment-qr {
   flex: 0 0 auto;
   padding: 10px;
@@ -594,6 +604,27 @@ select {
   width: 176px;
   height: 176px;
   border-radius: 12px;
+}
+
+.login-payment-code {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.login-payment-code-input {
+  width: 100%;
+  min-height: 112px;
+  resize: none;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text);
+  font-family: "Courier New", monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  word-break: break-all;
 }
 
 .login-card-copy {
@@ -1152,7 +1183,10 @@ select {
 
   .login-payment-card {
     align-items: flex-start;
-    flex-direction: column;
+  }
+
+  .login-payment-side {
+    grid-template-columns: 1fr;
   }
 
   .login-hero-copy .section-title {
