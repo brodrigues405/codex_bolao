@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Route } from "next";
 import { ArrowRight, BadgeCheck, ChartColumn } from "lucide-react";
 import { HomeAgendaTabs } from "@/components/home-agenda-tabs";
 import { getSessionUser } from "@/lib/auth";
@@ -6,7 +7,7 @@ import { getAdminSummary, getLeaderboard, getUpcomingMatches } from "@/lib/data"
 
 export default async function HomePage() {
   const user = await getSessionUser();
-  const agendaActionHref = user ? (user.mustChangePassword ? "/primeiro-acesso" : "/palpites") : "/login";
+  const agendaActionHref: Route = user ? (user.mustChangePassword ? "/primeiro-acesso" : "/palpites") : "/login";
   const agendaActionLabel = user ? "Palpitar" : "Entrar";
   const [summary, leaderboard, upcoming] = await Promise.all([
     getAdminSummary(),
