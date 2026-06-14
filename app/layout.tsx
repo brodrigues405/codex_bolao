@@ -18,6 +18,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <header className="site-header">
             <div className="brand">
               <strong>Bolao Copa 2026</strong>
+              <span className="brand-subtitle">Palpites, agenda e ranking em um so lugar</span>
             </div>
             <MainNav user={user} />
           </header>

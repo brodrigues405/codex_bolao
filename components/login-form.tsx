@@ -14,11 +14,23 @@ export function LoginForm() {
     <form action={action} className="form-grid login-form-shell">
       <label>
         <div className="muted">Usuario</div>
-        <input className="input" name="username" placeholder="ex.: maria.silva" />
+        <input
+          autoCapitalize="none"
+          autoComplete="username"
+          className="input"
+          name="username"
+          placeholder="ex.: maria.silva"
+        />
       </label>
       <label>
         <div className="muted">Senha</div>
-        <input className="input" name="password" placeholder="Sua senha" type="password" />
+        <input
+          autoComplete="current-password"
+          className="input"
+          name="password"
+          placeholder="Sua senha"
+          type="password"
+        />
       </label>
       <button className="button button-primary" disabled={isPending} type="submit">
         {isPending ? "Entrando..." : "Entrar"}

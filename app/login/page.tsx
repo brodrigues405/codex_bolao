@@ -1,4 +1,4 @@
-import { Trophy, Shield, TimerReset } from "lucide-react";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/login-form";
 import { PixPaymentCard } from "@/components/pix-payment-card";
@@ -21,38 +21,24 @@ export default async function LoginPage() {
       <div className="panel login-hero">
         <div className="login-hero-copy">
           <span className="eyebrow">Copa 2026</span>
-          <h1 className="section-title">Entre e acompanhe o bolão jogo a jogo.</h1>
+          <h1 className="section-title">Entre e acompanhe o bolao jogo a jogo.</h1>
+          <p className="lead login-hero-lead">
+            Ranking, agenda e palpites em uma experiencia pensada para acompanhar a Copa pelo celular sem perder contexto.
+          </p>
         </div>
 
         <div className="login-hero-art" aria-hidden="true">
           <div className="hero-orb hero-orb-left" />
           <div className="hero-orb hero-orb-right" />
-          <div className="hero-poster">
-            <div className="hero-poster-top">
-              <span className="hero-chip">México</span>
-              <span className="hero-chip">Canadá</span>
-              <span className="hero-chip">Estados Unidos</span>
-            </div>
-
-            <div className="hero-cup">
-              <div className="hero-ball" />
-              <div className="hero-cup-ring" />
-            </div>
-
-            <div className="hero-badges">
-              <div className="hero-badge">
-                <Trophy size={18} />
-                <span>Ranking em tempo real</span>
-              </div>
-              <div className="hero-badge">
-                <Shield size={18} />
-                <span>Palpites individuais</span>
-              </div>
-              <div className="hero-badge">
-                <TimerReset size={18} />
-                <span>Trava por horário oficial</span>
-              </div>
-            </div>
+          <div className="hero-image-frame">
+            <Image
+              alt="Bola dourada em campo iluminado com atmosfera de estadio"
+              className="hero-image"
+              height={1536}
+              priority
+              src="/login-hero-stadium.png"
+              width={1024}
+            />
           </div>
         </div>
       </div>

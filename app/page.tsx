@@ -4,6 +4,7 @@ import type { Route } from "next";
 import { ArrowRight, BadgeCheck, ChartColumn } from "lucide-react";
 import { HomeAgendaTabs } from "@/components/home-agenda-tabs";
 import { HomeHubTabs } from "@/components/home-hub-tabs";
+import { LeaderboardTable } from "@/components/leaderboard-table";
 import { getSessionUser } from "@/lib/auth";
 import { getAdminSummary, getAgendaMatches, getCurrentUserDashboard, getLaunchMatch, getLeaderboard } from "@/lib/data";
 
@@ -35,25 +36,8 @@ export default async function HomePage() {
             <h2 className="section-title">Ranking resumido</h2>
           </div>
         </div>
-        <div className="table">
-          <div className="table-head">
-            <span>Pos</span>
-            <span>Participante</span>
-            <span>Pontos</span>
-            <span>Exatos</span>
-            <span>Resultados</span>
-          </div>
-          {leaderboard.slice(0, 5).map((entry) => (
-            <div className="table-row" key={entry.userId}>
-              <strong>{entry.position}</strong>
-              <span>{entry.name}</span>
-              <strong>{entry.points}</strong>
-              <span>{entry.exactHits}</span>
-              <span>{entry.resultHits}</span>
-            </div>
-          ))}
-          {leaderboard.length === 0 ? <div className="banner">Nenhum participante cadastrado ainda.</div> : null}
-        </div>
+        <LeaderboardTable entries={leaderboard.slice(0, 5)} />
+        {leaderboard.length === 0 ? <div className="banner">Nenhum participante cadastrado ainda.</div> : null}
       </div>
 
       <div className="card">
@@ -280,7 +264,7 @@ export default async function HomePage() {
           </div>
         ) : null}
 
-        <div className="grid-3">
+        <div className="grid-3 home-summary-grid">
           <div className="card">
             <div className="metric">
               <small>Participantes</small>

@@ -15,17 +15,32 @@ export function PasswordChangeForm() {
     <form action={action} className="form-grid">
       <label>
         <div className="muted">Nova senha</div>
-        <input className="input" name="password" placeholder="Defina sua nova senha" type="password" />
+        <input
+          autoComplete="new-password"
+          className="input"
+          name="password"
+          placeholder="Defina sua nova senha"
+          type="password"
+        />
       </label>
       <label>
         <div className="muted">Confirmar nova senha</div>
-        <input className="input" name="confirmPassword" placeholder="Repita a nova senha" type="password" />
+        <input
+          autoComplete="new-password"
+          className="input"
+          name="confirmPassword"
+          placeholder="Repita a nova senha"
+          type="password"
+        />
       </label>
       <button className="button button-primary" disabled={isPending} type="submit">
         {isPending ? "Atualizando..." : "Salvar nova senha"}
       </button>
-      {state.error ? <div className="banner banner-danger">{state.error}</div> : null}
-      {state.success ? <div className="banner banner-success">{state.success}</div> : null}
+      <div className="muted">
+        Use uma senha facil de lembrar para voce, mas dificil de adivinhar por outras pessoas.
+      </div>
+      {state.error ? <div aria-live="assertive" className="banner banner-danger">{state.error}</div> : null}
+      {state.success ? <div aria-live="polite" className="banner banner-success">{state.success}</div> : null}
     </form>
   );
 }

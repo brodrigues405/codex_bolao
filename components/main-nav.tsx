@@ -30,23 +30,29 @@ export function MainNav({ user }: { user: SessionUser | null }) {
 
   return (
     <nav className="site-nav" aria-label="Navegacao principal">
-      {visibleLinks.map((link) => (
-        <Link
-          className="nav-link"
-          data-active={pathname === link.href}
-          href={link.href}
-          key={link.href}
-        >
-          {link.label}
-        </Link>
-      ))}
-      {user ? (
-        <form action={logoutAction}>
-          <button className="button button-secondary" type="submit">
-            Sair
-          </button>
-        </form>
-      ) : null}
+      <div className="site-nav-links">
+        {visibleLinks.map((link) => (
+          <Link
+            className="nav-link"
+            data-active={pathname === link.href}
+            href={link.href}
+            key={link.href}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </div>
+
+      <div className="site-nav-actions">
+        {user ? <span className="nav-user-pill">{user.name}</span> : null}
+        {user ? (
+          <form action={logoutAction}>
+            <button className="button button-secondary nav-logout-button" type="submit">
+              Sair
+            </button>
+          </form>
+        ) : null}
+      </div>
     </nav>
   );
 }

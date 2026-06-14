@@ -14,7 +14,7 @@ export function HomeHubTabs({ hasParticipantView, participantContent, publicCont
   return (
     <div className="stack">
       {hasParticipantView ? (
-        <div className="prediction-tabs" aria-label="Alternar visoes da home">
+        <div className="prediction-tabs home-hub-tabs" aria-label="Alternar visoes da home">
           <button
             className="prediction-tab"
             data-active={activeTab === "public"}

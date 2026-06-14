@@ -106,7 +106,7 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
     <div className="stack">
       <div className="prediction-tabs-shell">
         <div className="stack">
-          <div className="prediction-tabs" aria-label="Filtrar palpites por status">
+          <div className="prediction-tabs prediction-tabs-status" aria-label="Filtrar palpites por status">
             <button
               className="prediction-tab"
               data-active={activeStatusTab === "available"}
@@ -136,7 +136,7 @@ export function PredictionTabs({ matches }: PredictionTabsProps) {
             </button>
           </div>
 
-          <div className="prediction-tabs" aria-label="Filtrar palpites por grupo">
+          <div className="prediction-tabs prediction-tabs-groups" aria-label="Filtrar palpites por grupo">
             {tabs.map((tab) => (
               <button
                 className="prediction-tab"

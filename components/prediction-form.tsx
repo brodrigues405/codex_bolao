@@ -38,6 +38,7 @@ export function PredictionForm({
   const [homeValue, setHomeValue] = useState(homeScore?.toString() ?? "");
   const [awayValue, setAwayValue] = useState(awayScore?.toString() ?? "");
   const [joinGeneralLeague, setJoinGeneralLeague] = useState(userLeagueOptIn);
+  const [isPeerModalOpen, setIsPeerModalOpen] = useState(false);
 
   useEffect(() => {
     setHomeValue(homeScore?.toString() ?? "");
@@ -47,6 +48,28 @@ export function PredictionForm({
   useEffect(() => {
     setJoinGeneralLeague(userLeagueOptIn);
   }, [userLeagueOptIn]);
+
+  useEffect(() => {
+    if (!isPeerModalOpen) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsPeerModalOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isPeerModalOpen]);
 
   const isFilled = homeValue !== "" && awayValue !== "";
   const isValidScore = (value: string) => /^\d{1,2}$/.test(value);
@@ -167,9 +190,13 @@ export function PredictionForm({
         ) : null}
       </div>
 
-      {canEdit && !isFilled ? <span className="muted">Preencha os dois placares para habilitar o salvamento.</span> : null}
+      {canEdit && !isFilled ? (
+        <div className="banner prediction-helper-banner">
+          Preencha os dois placares para habilitar o salvamento do seu palpite.
+        </div>
+      ) : null}
       {canEdit && isFilled && (!isValidScore(homeValue) || !isValidScore(awayValue)) ? (
-        <span className="danger-text">Use apenas numeros inteiros de 0 a 99.</span>
+        <div aria-live="assertive" className="banner banner-danger">Use apenas numeros inteiros de 0 a 99.</div>
       ) : null}
       {matchingPredictionGroup ? (
         <div className="banner prediction-peer-banner">
@@ -178,30 +205,78 @@ export function PredictionForm({
       ) : null}
 
       {groupedPeerPredictions.length > 0 ? (
-        <div className="prediction-peer-section">
-          <div className="prediction-peer-header">
-            <strong>Palpites dos colegas</strong>
-            <span className="muted">Veja os placares mais repetidos e tente se diferenciar se quiser.</span>
+        <>
+          <div className="prediction-peer-section">
+            <div className="prediction-peer-header">
+              <strong>Palpites dos colegas</strong>
+              <span className="muted">Veja os placares mais repetidos sem esticar demais o card do jogo.</span>
+            </div>
+            <div className="prediction-peer-summary">
+              <span className="status-pill open">{peerPredictions.length} colega(s)</span>
+              <span className="muted">
+                {groupedPeerPredictions.length} placar(es) diferente(s) registrado(s) para este jogo.
+              </span>
+            </div>
+            <button
+              className="button button-secondary prediction-peer-trigger"
+              onClick={() => setIsPeerModalOpen(true)}
+              type="button"
+            >
+              Visualizar palpites dos colegas
+            </button>
           </div>
-          <div className="prediction-peer-list">
-            {groupedPeerPredictions.map((group) => (
-              <div
-                className="prediction-peer-item"
-                data-match={group.scoreline === currentScoreline}
-                key={group.scoreline}
-              >
-                <div className="prediction-peer-score">{group.scoreline}</div>
-                <div className="prediction-peer-meta">
-                  <strong>{group.names.length} colega(s)</strong>
-                  <span className="muted">{group.names.join(", ")}</span>
+
+          {isPeerModalOpen ? (
+            <div
+              aria-labelledby={`peer-modal-title-${matchId}`}
+              aria-modal="true"
+              className="modal-backdrop"
+              onClick={() => setIsPeerModalOpen(false)}
+              role="dialog"
+            >
+              <div className="modal-card" onClick={(event) => event.stopPropagation()}>
+                <div className="modal-header">
+                  <div className="stack modal-title-stack">
+                    <span className="eyebrow">Leitura detalhada</span>
+                    <h3 className="section-title" id={`peer-modal-title-${matchId}`}>
+                      Palpites dos colegas
+                    </h3>
+                    <p className="muted">
+                      Confira os placares registrados para este jogo e use o scroll somente aqui quando precisar.
+                    </p>
+                  </div>
+                  <button
+                    aria-label="Fechar palpites dos colegas"
+                    className="button button-secondary modal-close"
+                    onClick={() => setIsPeerModalOpen(false)}
+                    type="button"
+                  >
+                    Fechar
+                  </button>
+                </div>
+
+                <div className="prediction-peer-list prediction-peer-list-modal">
+                  {groupedPeerPredictions.map((group) => (
+                    <div
+                      className="prediction-peer-item"
+                      data-match={group.scoreline === currentScoreline}
+                      key={group.scoreline}
+                    >
+                      <div className="prediction-peer-score">{group.scoreline}</div>
+                      <div className="prediction-peer-meta">
+                        <strong>{group.names.length} colega(s)</strong>
+                        <span className="muted">{group.names.join(", ")}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          ) : null}
+        </>
       ) : null}
-      {state.error ? <span className="danger-text">{state.error}</span> : null}
-      {state.success ? <span className="success-text">{state.success}</span> : null}
+      {state.error ? <div aria-live="assertive" className="banner banner-danger">{state.error}</div> : null}
+      {state.success ? <div aria-live="polite" className="banner banner-success">{state.success}</div> : null}
     </form>
   );
 }
